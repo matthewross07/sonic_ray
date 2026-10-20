@@ -19,7 +19,7 @@ src/*.dll
 !docs/media/*.mp4
 *.mov
 *.wav
-!docs/media/*.gif
+!docs/media/*.webp
 cache/
 out/
 compositor/*.dylib

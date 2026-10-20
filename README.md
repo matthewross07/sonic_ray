@@ -33,7 +33,7 @@ sr_demo("my_demo")             # SYNTHETIC data -> GPU light layers -> GPU compo
 **The demo data are synthetic**: an invented river valley, invented sensors and invented "samples". They show the pipeline and file formats, not real measurements.
 To use real sensors and a real elevation model, see [docs/BRING_YOUR_OWN_DATA.md](docs/BRING_YOUR_OWN_DATA.md).
 
-<p align="center"><img src="docs/media/demo_synthetic.gif" width="560" alt="Synthetic demo: sensors light up along an invented river valley and fire a firework for each sample"></p>
+<p align="center"><img src="docs/media/demo_synthetic.webp" width="800" alt="Synthetic demo: sensors light up along an invented river valley and fire a firework for each sample"></p>
 <p align="center"><sub><b>Synthetic data.</b> Invented terrain, sensors and samples, made by <code>sr_demo()</code> (about 20 s on an M4 Pro at review quality).
 <a href="docs/media/demo_synthetic.mp4">Full-quality mp4</a> · <a href="docs/media/demo_quick_sheet.png">quick sheet</a></sub></p>
 
