@@ -1,0 +1,15 @@
+useDynLib(sonicray, .registration = TRUE)
+importFrom(Rcpp, evalCpp)
+export(
+  sr_metal_available,
+  sr_device_info,
+  sr_scene_from_dem,
+  sr_upload_scene,
+  sr_render_light_layers,
+  sr_denoise_layer,
+  sr_timeline,
+  sr_seasonal_curve,
+  sr_compose_video,
+  sr_write_sonic_pi,
+  sr_parity_check
+)

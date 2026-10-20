@@ -1,0 +1,22 @@
+# R / build
+.Rproj.user/
+.Rhistory
+.RData
+.Rdata
+*.Rcheck/
+*.tar.gz
+# compiled objects
+src/*.o
+src/*.so
+src/*.dll
+# macOS / editors
+.DS_Store
+.vscode/
+.idea/
+# big generated data: never commit (layers, caches, videos, wav)
+*.f32
+*.mp4
+*.mov
+*.wav
+cache/
+out/

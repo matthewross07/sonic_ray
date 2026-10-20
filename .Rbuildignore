@@ -1,0 +1,9 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^docs$
+^tools$
+^film$
+^\.github$
+^ARCHITECTURE\.md$
+^GETTING_STARTED\.md$
