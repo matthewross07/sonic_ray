@@ -57,11 +57,24 @@ int sc_mmap(const char* path) {
     if (fd < 0) return fail(std::string("open failed: ") + path);
     struct stat st; fstat(fd, &st);
     size_t pg = (size_t)getpagesize(), len = ((size_t)st.st_size + pg - 1) / pg * pg;
-    void* p = mmap(nullptr, len, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
-    close(fd);
-    if (p == MAP_FAILED) return fail(std::string("mmap failed: ") + path);
-    id<MTLBuffer> b = [g_dev newBufferWithBytesNoCopy:p length:len options:MTLResourceStorageModeShared deallocator:nil];
-    if (!b) return fail(std::string("newBufferWithBytesNoCopy failed: ") + path);
+    const char* mode = getenv("SONICRAY_MMAP");            // experiments: "copy" | "shared" | (default) private
+    id<MTLBuffer> b = nil;
+    if (mode && std::string(mode) == "copy") {
+      void* q = mmap(nullptr, len, PROT_READ, MAP_PRIVATE, fd, 0);
+      close(fd);
+      if (q == MAP_FAILED) return fail(std::string("mmap failed: ") + path);
+      b = [g_dev newBufferWithLength:len options:MTLResourceStorageModeShared];
+      if (!b) return fail(std::string("buffer allocation failed: ") + path);
+      memcpy([b contents], q, (size_t)st.st_size);
+      munmap(q, len);
+    } else {
+      bool sh = mode && std::string(mode) == "shared";
+      void* p = mmap(nullptr, len, sh ? PROT_READ : (PROT_READ | PROT_WRITE), sh ? MAP_SHARED : MAP_PRIVATE, fd, 0);
+      close(fd);
+      if (p == MAP_FAILED) return fail(std::string("mmap failed: ") + path);
+      b = [g_dev newBufferWithBytesNoCopy:p length:len options:MTLResourceStorageModeShared deallocator:nil];
+      if (!b) return fail(std::string("newBufferWithBytesNoCopy failed: ") + path);
+    }
     [g_bufs addObject:b];
     return (int)[g_bufs count] - 1;
   }

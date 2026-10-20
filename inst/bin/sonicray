@@ -1,0 +1,4 @@
+#!/bin/bash
+# sonicray command line wrapper (works from the source tree and from an installed R package)
+DIR="$(cd "$(dirname "$0")/../python" && pwd)"
+PYTHONPATH="$DIR${PYTHONPATH:+:$PYTHONPATH}" exec "${SONICRAY_PYTHON:-python3}" -m sonicray "$@"

@@ -168,33 +168,106 @@ kernel void bilinear_up(device const float* src [[buffer(0)]], device float* dst
     }
 }
 
-// ----------------------------------------------------------------------------------------------- sky (starfield only; sun-era sky comes from the host)
-struct SkyP { int W; int H; float t; float amt; };
-kernel void sky_stars(device const pf3* stars [[buffer(0)]], device pf3* sky [[buffer(1)]], constant SkyP& p [[buffer(2)]],
-                      uint2 g [[thread_position_in_grid]]) {
+// ----------------------------------------------------------------------------------------------- sky
+// Day sky = blend of two path-traced sky layers, normalised by their 92nd percentile (GPU log-histogram, no CPU readback),
+// tinted zenith->horizon, ACES-mapped, plus dawn/sunset bands and a twinkling starfield.  Night (p <= 0) is stars only.
+struct SkyP { int W; int H; int day; int use_stars; float f; float t; float star_amt; float y_edge; float ox1; float dawn_band; float set_band;
+              float sky_exp; float zen[3]; float hort[3]; float venus[3]; float sunc[3]; float lo; float step; int nb; };
+inline float3 sky_base(uint i, int x, int y, device const pf3* sa, device const pf3* sb, constant SkyP& p, float p90) {
+    float3 raw = float3(sa[i]) * (1.0f - p.f) + float3(sb[i]) * p.f;
+    float yn = (float)y / (float)(p.H - 1);
+    float3 zt = (1.0f - yn) * float3(p.zen[0], p.zen[1], p.zen[2]) + yn * float3(p.hort[0], p.hort[1], p.hort[2]);
+    float3 xx = max(raw / p90 * zt * p.sky_exp, 0.0f);
+    float3 mapped = clamp((xx * (2.51f * xx + 0.03f)) / (xx * (2.43f * xx + 0.59f) + 0.14f), 0.0f, 1.0f);
+    float3 s = pow(mapped, float3(1.0f / 2.2f));
+    float yb = exp(-pow(((float)y - p.y_edge) / (0.09f * (float)p.H), 2.0f));
+    float xs = exp(-pow(((float)x - p.ox1) / (0.32f * (float)p.W), 2.0f));
+    s = clamp(s + yb * (float3(p.venus[0], p.venus[1], p.venus[2]) * (0.26f * p.dawn_band) +
+                        float3(p.sunc[0], p.sunc[1], p.sunc[2]) * (0.34f * p.set_band * (0.45f + 0.55f * xs))), 0.0f, 1.0f);
+    return s;
+}
+kernel void sky_hist(device const pf3* sa [[buffer(0)]], device const pf3* sb [[buffer(1)]], device atomic_uint* hist [[buffer(2)]],
+                     constant SkyP& p [[buffer(3)]], uint2 g [[thread_position_in_grid]]) {
+    int x = (int)g.x * 4, y = (int)g.y * 4;                       // every 4th pixel in each direction is plenty for a percentile
+    if (x >= p.W || y >= p.H) return;
+    uint i = (uint)y * (uint)p.W + (uint)x;
+    float3 raw = float3(sa[i]) * (1.0f - p.f) + float3(sb[i]) * p.f;
+    for (int c = 0; c < 3; ++c) {
+        float v = max(raw[c], 1e-9f);
+        int b = clamp((int)((log2(v) - p.lo) / p.step), 0, p.nb - 1);
+        atomic_fetch_add_explicit(&hist[b], 1u, memory_order_relaxed);
+    }
+}
+kernel void sky_pctl(device const uint* hist [[buffer(0)]], device float* out [[buffer(1)]], constant SkyP& p [[buffer(2)]],
+                     uint2 g [[thread_position_in_grid]]) {
+    if (g.x != 0 || g.y != 0) return;
+    uint n = 0;
+    for (int b = 0; b < p.nb; ++b) n += hist[b];
+    float target = 0.92f * (float)(n > 0 ? n - 1 : 0);
+    uint c = 0; int hit = p.nb - 1;
+    for (int b = 0; b < p.nb; ++b) { c += hist[b]; if ((float)c > target) { hit = b; break; } }
+    out[0] = max(exp2(p.lo + ((float)hit + 0.5f) * p.step), 1e-3f);
+}
+kernel void sky_hor(device const pf3* sa [[buffer(0)]], device const pf3* sb [[buffer(1)]], device const float* p90 [[buffer(2)]],
+                    device float* hor [[buffer(3)]], constant SkyP& p [[buffer(4)]], uint2 g [[thread_position_in_grid]]) {
+    if (g.x != 0 || g.y != 0) return;
+    if (p.day == 0) { hor[0] = 0.45f; hor[1] = 0.55f; hor[2] = 0.72f; return; }
+    int y = min((int)p.y_edge, p.H - 1), x = p.W / 2;
+    float3 s = sky_base((uint)y * (uint)p.W + (uint)x, x, y, sa, sb, p, p90[0]);
+    hor[0] = s.x; hor[1] = s.y; hor[2] = s.z;
+}
+kernel void sky_render(device const pf3* sa [[buffer(0)]], device const pf3* sb [[buffer(1)]], device const float* p90 [[buffer(2)]],
+                       device const pf3* stars [[buffer(3)]], device pf3* sky [[buffer(4)]], constant SkyP& p [[buffer(5)]],
+                       uint2 g [[thread_position_in_grid]]) {
     if ((int)g.x >= p.W || (int)g.y >= p.H) return;
     uint i = g.y * (uint)p.W + g.x;
-    float tw = 0.85f + 0.15f * sin(p.t * 1.6f + (float)g.x * 0.17f + (float)g.y * 0.11f);
-    float3 st = pow(clamp(float3(stars[i]) * 22.0f, 0.0f, 1.0f), float3(0.75f));
-    sky[i] = pf3(clamp(st * tw * p.amt, 0.0f, 1.0f));
+    float3 s = p.day != 0 ? sky_base(i, (int)g.x, (int)g.y, sa, sb, p, p90[0]) : float3(0.0f);
+    if (p.use_stars != 0) {
+        float tw = 0.85f + 0.15f * sin(p.t * 1.6f + (float)g.x * 0.17f + (float)g.y * 0.11f);
+        float3 st = pow(clamp(float3(stars[i]) * 22.0f, 0.0f, 1.0f), float3(0.75f));
+        s = clamp(s + st * tw * p.star_amt, 0.0f, 1.0f);
+    }
+    sky[i] = pf3(s);
 }
 
-// ----------------------------------------------------------------------------------------------- firework overlay
-// Five 8-bit planes drawn by the host at 2x resolution (toc, chla, alk, shimmer, white) -> 2x2 box average -> coloured, summed.
-struct OvP { int W; int H; int active[5]; float col[15]; };
-kernel void ov_from_planes(device const uchar* p0 [[buffer(0)]], device const uchar* p1 [[buffer(1)]], device const uchar* p2 [[buffer(2)]],
-                           device const uchar* p3 [[buffer(3)]], device const uchar* p4 [[buffer(4)]],
-                           device pf3* ov [[buffer(5)]], device atomic_uint* omax [[buffer(6)]], constant OvP& p [[buffer(7)]],
-                           uint2 g [[thread_position_in_grid]], uint lane [[thread_index_in_simdgroup]]) {
+// ----------------------------------------------------------------------------------------------- firework sparks
+// Host-generated primitives (filaments = thick lines, star heads = ellipses), painted per plane in draw order, binned into 32x32
+// tiles.  Each output pixel takes 2x2 sub-samples (the CPU path drew at 2x resolution and box-filtered), five planes
+// (toc, chla, alk, shimmer, white) -> coloured, summed, scaled by 0.92.
+struct Prim { float a; float b; float c; float d; float w; float fill; int plane; int kind; };
+struct SparkP { int W; int H; int ntx; float col[15]; };
+kernel void spark_raster(device const Prim* prims [[buffer(0)]], device const uint* tile_off [[buffer(1)]], device const uint* tile_idx [[buffer(2)]],
+                         device pf3* ov [[buffer(3)]], device atomic_uint* omax [[buffer(4)]], constant SparkP& p [[buffer(5)]],
+                         uint2 g [[thread_position_in_grid]], uint lane [[thread_index_in_simdgroup]]) {
     float local = 0.0f;
     if ((int)g.x < p.W && (int)g.y < p.H) {
-        device const uchar* P[5] = {p0, p1, p2, p3, p4};
-        uint W2 = (uint)p.W * 2u;
-        uint a = (g.y * 2u) * W2 + g.x * 2u, b = a + 1u, c = a + W2, d = c + 1u;
+        uint tile = (g.y / 32u) * (uint)p.ntx + (g.x / 32u);
+        float4 v[5] = {float4(0.0f), float4(0.0f), float4(0.0f), float4(0.0f), float4(0.0f)};
+        float2 q[4];
+        for (int s = 0; s < 4; ++s) q[s] = float2((float)(g.x * 2u + (uint)(s & 1)), (float)(g.y * 2u + (uint)(s >> 1)));
+        for (uint k = tile_off[tile]; k < tile_off[tile + 1]; ++k) {
+            Prim pr = prims[tile_idx[k]];
+            for (int s = 0; s < 4; ++s) {
+                bool hit;
+                if (pr.kind == 0) {
+                    float2 a = float2(pr.a, pr.b), d = float2(pr.c - pr.a, pr.d - pr.b), r = q[s] - a;
+                    float L2 = dot(d, d);
+                    if (L2 < 1e-6f) hit = length(r) <= pr.w * 0.5f - 0.10f;
+                    else {
+                        float L = sqrt(L2), t = dot(r, d) / L, perp = fabs(r.x * d.y - r.y * d.x) / L;
+                        hit = perp <= pr.w * 0.5f - 0.10f && t >= -0.5f && t <= L + 0.5f;
+                    }
+                } else {
+                    float2 c = float2((pr.a + pr.c) * 0.5f, (pr.b + pr.d) * 0.5f), rad = float2((pr.c - pr.a) * 0.5f + 0.4f, (pr.d - pr.b) * 0.5f + 0.4f);
+                    float2 e = (q[s] - c) / rad;
+                    hit = dot(e, e) <= 1.0f;
+                }
+                if (hit) v[pr.plane][s] = pr.fill;
+            }
+        }
         float3 o = float3(0.0f);
         for (int k = 0; k < 5; ++k) {
-            if (!p.active[k]) continue;
-            float m = floor(((float)P[k][a] + (float)P[k][b] + (float)P[k][c] + (float)P[k][d]) * 0.25f + 0.5f) / 255.0f;
+            float m = floor((v[k].x + v[k].y + v[k].z + v[k].w) * 0.25f + 0.5f) / 255.0f;
             o += m * float3(p.col[3 * k], p.col[3 * k + 1], p.col[3 * k + 2]);
         }
         o *= 0.92f;
@@ -206,24 +279,45 @@ kernel void ov_from_planes(device const uchar* p0 [[buffer(0)]], device const uc
 }
 
 // ----------------------------------------------------------------------------------------------- final frame
-struct FinalP { int W; int H; int has_orb; int use_atm; int use_ov; int dither; uint seed; int nb;
-                float atm; float hor[3]; float fade; float scale; float bcn[96]; };   // bcn: nb x (px, py, beam_h, pulse)
+// orb_mode: 0 none, 1 noon corona (glow only), 2 descending solar disk + Mie aureole.  orb[]: ox, oy, r, vis, dusk, amp, sun colour rgb.
+struct FinalP { int W; int H; int orb_mode; int use_atm; int use_ov; int dither; uint seed; int nb;
+                float atm; float fade; float scale; float orb[9]; float bcn[96]; };   // bcn: nb x (px, py, beam_h, pulse)
 kernel void final_frame(device const pf3* terrain [[buffer(0)]], device const float* m [[buffer(1)]], device const pf3* sky [[buffer(2)]],
-                        device const pf3* orb_core [[buffer(3)]], device const pf3* orb_glow [[buffer(4)]], device const float* aerial [[buffer(5)]],
-                        device const pf3* b1 [[buffer(6)]], device const pf3* b2 [[buffer(7)]], device const pf3* b3 [[buffer(8)]],
-                        device const pf3* ov [[buffer(9)]], device const pf3* ob1 [[buffer(10)]], device const pf3* ob2 [[buffer(11)]],
-                        device const uint* bmax [[buffer(12)]], device const uint* omax [[buffer(13)]], device uchar* out [[buffer(14)]],
-                        constant FinalP& p [[buffer(15)]], uint2 g [[thread_position_in_grid]]) {
+                        device const float* hor [[buffer(3)]], device const float* aerial [[buffer(4)]],
+                        device const pf3* b1 [[buffer(5)]], device const pf3* b2 [[buffer(6)]], device const pf3* b3 [[buffer(7)]],
+                        device const pf3* ov [[buffer(8)]], device const pf3* ob1 [[buffer(9)]], device const pf3* ob2 [[buffer(10)]],
+                        device const uint* bmax [[buffer(11)]], device const uint* omax [[buffer(12)]], device uchar* out [[buffer(13)]],
+                        constant FinalP& p [[buffer(14)]], uint2 g [[thread_position_in_grid]]) {
     if ((int)g.x >= p.W || (int)g.y >= p.H) return;
     uint i = g.y * (uint)p.W + g.x;
     float m3 = m[i];
     float3 t = float3(terrain[i]);
     if (p.use_atm != 0) {
         float aw = aerial[i] * p.atm;
-        t = t * (1.0f - aw) + float3(p.hor[0], p.hor[1], p.hor[2]) * aw;
+        t = t * (1.0f - aw) + float3(hor[0], hor[1], hor[2]) * aw;
     }
     float3 img = float3(sky[i]) * (1.0f - m3) + t * m3;
-    if (p.has_orb != 0) img += float3(orb_core[i]) * (1.0f - m3) + float3(orb_glow[i]) * (1.0f - 0.72f * m3);
+    float x = (float)g.x, y = (float)g.y, sc = p.scale;
+    if (p.orb_mode != 0) {
+        float H = (float)p.H;
+        float ox = p.orb[0], oy = p.orb[1];
+        float d2 = (x - ox) * (x - ox) + (y - oy) * (y - oy);
+        float3 sun_col = float3(p.orb[6], p.orb[7], p.orb[8]);
+        float3 core = float3(0.0f), glow = float3(0.0f);
+        if (p.orb_mode == 1) {
+            glow = exp(-d2 / (2.0f * (0.14f * H) * (0.14f * H))) * p.orb[5] * sun_col;
+        } else {
+            float r = p.orb[2], vis = p.orb[3], dusk = p.orb[4], d = sqrt(d2);
+            float u_limb = clamp(1.0f - d2 / max(r * r, 1e-4f), 0.0f, 1.0f), mu = sqrt(u_limb);
+            float disc = (u_limb > 0.0f ? 1.0f : 0.0f) * (0.35f + 0.65f * mu) * clamp((r - d) / (0.22f * r) + 0.5f, 0.0f, 1.0f);
+            float th = d / (0.12f * H);
+            float mie_in = 1.0f / pow(1.0f + pow(th / 0.14f, 1.95f), 1.45f);
+            float mie_out = exp(-d2 / (2.0f * (0.09f * H) * (0.09f * H))) * 0.16f;
+            core = disc * (sun_col * 0.35f + 0.65f) * (1.15f * vis * (1.0f - dusk));
+            glow = (mie_in * 0.48f + mie_out) * vis * sun_col;
+        }
+        img += core * (1.0f - m3) + glow * (1.0f - 0.72f * m3);
+    }
     if (as_type<float>(bmax[0]) > 0.01f) img += (float3(b1[i]) * 0.56f + float3(b2[i]) * 0.72f + float3(b3[i]) * 0.54f) * 0.52f;
     if (p.use_ov != 0 && as_type<float>(omax[0]) > 0.0f) {
         float3 ot = float3(ov[i]) * 1.12f + float3(ob1[i]) * 0.26f + float3(ob2[i]) * 0.20f;
@@ -232,7 +326,6 @@ kernel void final_frame(device const pf3* terrain [[buffer(0)]], device const fl
         img = 1.0f - (1.0f - clamp(img, 0.0f, 1.0f)) * (1.0f - clamp(os, 0.0f, 0.96f));
     }
     // sonde beacons: luminous core on the stream surface + soft upward plume
-    float x = (float)g.x, y = (float)g.y, sc = p.scale;
     for (int k = 0; k < p.nb; ++k) {
         float px = p.bcn[4 * k], py = p.bcn[4 * k + 1], bh = p.bcn[4 * k + 2], pulse = p.bcn[4 * k + 3];
         float dx = x - px, dy = py - y;
