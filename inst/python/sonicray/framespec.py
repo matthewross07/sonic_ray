@@ -102,7 +102,7 @@ class FrameSpec:
     terms: List[Term] = field(default_factory=list)              # summed into the terrain light
     beacon_terms: List[Term] = field(default_factory=list)       # 'lighthouse' layers: tinted blue, also drive the river halo
     sat: Optional[SatScan] = None
-    bursts: Sequence[Burst] = ()
+    bursts: List[Burst] = field(default_factory=list)
     sky: Optional[SkyDay] = None                                 # None -> night (stars only)
     star_amount: float = 0.0                                     # 0 disables stars
     orb: Optional[Orb] = None

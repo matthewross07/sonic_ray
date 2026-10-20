@@ -138,7 +138,9 @@ def cmd_compose(a):
     meta = json.load(open(os.path.join(a.layers, "scene_meta.json")))
     W, H = meta["width"], meta["height"]
     from .films import STORIES
-    total = STORIES[a.story].total
+    total = getattr(STORIES[a.story], "total", None)
+    if total is None:                                              # data-driven stories keep their length in story.json
+        total = float(json.load(open(os.path.join(a.layers, "story.json")))["duration_s"])
     f0 = int(round(a.t0 * a.fps)); f1 = int(round((a.t1 if a.t1 is not None else total) * a.fps)); nfr = f1 - f0
     os.makedirs(os.path.dirname(os.path.abspath(a.out)) or ".", exist_ok=True)
     silent = a.out if not a.audio else a.out + ".silent.mp4"
