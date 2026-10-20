@@ -1,4 +1,4 @@
-# How it works, what was measured, what is missing
+# How it works, what we measured, what is missing
 
 ## Pipeline
 ```
@@ -9,10 +9,10 @@ terrain mesh + albedo ──> Metal acceleration structure (built once, kept in 
    ──> GPU compositor: layer sums, scans, halo, tone map, sharpen, bloom, sky, sparks, beacons, dither, uint8   [Metal]
    ──> ffmpeg (x264)
 ```
-Layers are mapped straight into GPU buffers (no copy). Sparks are simulated on the CPU as geometry (vectorised numpy), rasterised on the GPU in 32x32 tiles.
-The day sky percentile is a GPU histogram. Native Metal code is compiled at run time (`newLibraryWithSource`), so only the Command Line Tools are needed.
+The compositor maps layers straight into GPU buffers (no copy). It simulates sparks on the CPU as geometry (vectorised numpy) and rasterises them on the GPU in 32x32 tiles.
+A GPU histogram computes the day-sky percentile. The package compiles its native Metal code at run time (`newLibraryWithSource`), so you need only the Command Line Tools.
 
-**Read the CPU column fairly.** It measures *our* earlier workflow built on rayrender (one render per light, 2x supersampling, adaptive sampling, scene rebuilt on each call), on one scene. It is not a benchmark of rayrender, which is a general-purpose renderer with far more features than this package.
+**Read the CPU column fairly.** It measures *my* earlier workflow built on rayrender (one render per light, 2x supersampling, adaptive sampling, scene rebuilt on each call), on one scene. It does not benchmark rayrender, a general-purpose renderer with far more features than this package.
 
 ## Measurements (Apple M4 Pro, macOS 15.7, Poudre film: 1920x1080, 3.8 M triangles, 162 layers, 3,900 frames)
 | | CPU | GPU |
@@ -27,12 +27,12 @@ Whole film vs the earlier CPU-composited film of the same layers: mean 49.2 dB P
 Layers vs rayrender: ambient and sun within a few percent; near sphere lights median ratio 0.9-1.04; shadow edges differ.
 Synthetic demo (draft 960x540, 18 s): layers 7.8 s, composite 2.3 s.
 
-Lessons worth knowing: (1) numpy's BLAS spins one thread per core even for 3x3 products; with several workers this cost 4x throughput until pinned to one thread;
-(2) forked processes that touch Metal crash, use `spawn`; (3) after this, x264 is the floor, not the GPU.
+Lessons worth knowing: (1) numpy's BLAS spins one thread per core even for 3x3 products, and with several workers that cost 4x throughput until we pinned it to one thread;
+(2) forked processes that touch Metal crash, so use `spawn`; (3) after those fixes, x264 sets the floor, not the GPU.
 
 ## Known gaps
 - Sphere lights only; one GPU; up to 3 spark parameters; no volumetrics or glossy materials.
 - Treat rayrender as the reference: our path tracer differs from it along shadow edges and in indirect fill; bounces add only 1-2% on the Poudre terrain.
-- Music is optional and outside the package (see MUSIC_WITH_SONIC_PI.md); the real-data Poudre inputs live outside this repository.
-- Tested on one machine. Not tested: clean Mac without Python packages, other macOS versions, other Apple chips.
-- `sr_demo(quality = "final")` renders at 1080p but was not timed.
+- Music is optional and outside the package (see MUSIC_WITH_SONIC_PI.md), and I keep the real-data Poudre inputs outside this repository.
+- We tested on one machine. We did not test a clean Mac without the Python packages, other macOS versions, or other Apple chips.
+- `sr_demo(quality = "final")` renders at 1080p, but we have not timed it.

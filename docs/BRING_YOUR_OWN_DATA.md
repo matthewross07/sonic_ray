@@ -1,19 +1,19 @@
 # Bring your own data
 
 ## What is real and what is synthetic
-- **The bundled demo (`sr_demo()`) is entirely SYNTHETIC.** The terrain, river, 12 sensors and ~90 samples (`param_a/b/c`) are invented by `sr_demo_data()` from a random seed.
-  They exist to show the pipeline and the file formats. Do not present demo output as real measurements.
-- **The Cache la Poudre film is the real-data case study** ([watch it](https://drive.google.com/file/d/1ZK00RkxaJZzP5XXc6u0OaxfVcurk3Hm7/view?usp=sharing)) the package grew from (real elevation model, real sonde sites, real Water Quality Portal samples).
-  Its code is included as a story (`inst/python/sonicray/films/poudre.py`) and a layer script (`film/poudre/`), but its data are **not** shipped.
+- **The bundled demo (`sr_demo()`) is entirely SYNTHETIC.** `sr_demo_data()` invents the terrain, the river, 12 sensors and about 90 samples (`param_a/b/c`) from a random seed.
+  They show the pipeline and the file formats. Do not present demo output as real measurements.
+- **The Cache la Poudre film is my real-data case study** ([watch it](https://drive.google.com/file/d/1ZK00RkxaJZzP5XXc6u0OaxfVcurk3Hm7/view?usp=sharing)), the film this package grew from. It uses a real elevation model, real sonde sites and real Water Quality Portal samples.
+  The repository includes its code (a story in `inst/python/sonicray/films/poudre.py` and a layer script in `film/poudre/`) but **not** its data.
 
-## Making your own film from real sensors
-You need four things. Everything except step 1 is already automated.
+## Make your own film from real sensors
+You need four things. The package automates everything except the first.
 
-1. **Terrain** (elevation matrix `H` in metres, plus `xr`, `zr` extents in km). From a DEM raster you can build it with `terra`; the demo uses `sr_demo_data()` instead.
+1. **Terrain**: an elevation matrix `H` in metres, plus the `xr` and `zr` extents in km. You can build it from a DEM raster with `terra`; the demo uses `sr_demo_data()` instead.
    Pick a camera (`lookfrom`, `lookat`, `fov`) and check it with a draft render.
-2. **Sensors** at scene coordinates `x, z` (km) with height `y` on the terrain. Convert lon/lat with a local projection (km east/north of an origin, then rotate to your camera yaw).
-3. **Light layers**: one per beacon (`bea_<site>`) and per site and parameter (`fwk_<parameter>_<site>`), rendered with `sr_render_light_layers()`; see `R/demo.R` for the exact light table.
-   Also write `amb`, `mask` (terrain=1) and `riv` (river mask) as in `R/demo.R`.
+2. **Sensors** at scene coordinates `x, z` (km) with height `y` on the terrain. Convert lon/lat with a local projection: km east and north of an origin, then rotate to your camera yaw.
+3. **Light layers**: one per beacon (`bea_<site>`) and one per site and parameter (`fwk_<parameter>_<site>`). Render them with `sr_render_light_layers()`; `R/demo.R` shows the exact light table.
+   Also write `amb`, `mask` (terrain = 1) and `riv` (river mask) the way `R/demo.R` does.
 4. **Story data** in the layers directory:
 
 | file | columns / keys | meaning |
@@ -21,13 +21,13 @@ You need four things. Everything except step 1 is already automated.
 | `sensors.csv` | `site, online_s` | when each sensor's beacon lights up (seconds into the film) |
 | `events.csv` | `site, parameter, time_s, value` | one firework per sample; `value` in 0..1 sets its size and brightness |
 | `story.json` | `duration_s`, `parameters` {name: {plane 0-2, glow [r,g,b]}}, optional `spark_colors` | length and the colour of each parameter |
-| `scene_meta.json` | `width, height, cam, sites[]` (each with `x,y,z`, screen position `px,py`, `beam`, `bursts[]`) | geometry; written by `sr_write_story_files()` |
+| `scene_meta.json` | `width, height, cam, sites[]` (each with `x,y,z`, screen position `px,py`, `beam`, `bursts[]`) | geometry; `sr_write_story_files()` writes it |
 
-Map real values to `value` yourself (for example scale each parameter to 0..1 over its range, and map real dates to film seconds). Then:
+Map your real values to `value` yourself (for example scale each parameter to 0..1 over its range) and map your real dates to film seconds. Then run:
 ```bash
 inst/bin/sonicray sheet   --layers LAYERS --story network --out sheet.png
 inst/bin/sonicray compose --layers LAYERS --story network --out my_film.mp4 --quality review
 ```
-For a different narrative (sun, satellite scans, seasons), copy `films/poudre.py` or `films/network.py` and register it in `films/__init__.py`; the `FrameSpec` contract is documented in `framespec.py`.
+For a different narrative (sun, satellite scans, seasons), copy `films/poudre.py` or `films/network.py` and register the copy in `films/__init__.py`. `framespec.py` documents the `FrameSpec` contract.
 
-Limits today: up to 3 parameters (spark planes 0-2); sphere lights; the helper that converts lon/lat and DEMs to a scene is left to you (about 20 lines of `terra`).
+Limits today: up to 3 parameters (spark planes 0-2) and sphere lights only. I leave the helper that converts lon/lat and DEMs into a scene to you; it takes about 20 lines of `terra`.

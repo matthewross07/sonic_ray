@@ -1,6 +1,6 @@
 # AGENTS.md: briefing for AI assistants driving sonicray
 
-Read this before touching the code or rendering anything. It exists so you and the user spend their time on the film, not on re-deciding the pipeline.
+Read this before you touch the code or render anything. I wrote it so that you and the user spend their time on the film, not on re-deciding the pipeline.
 (`CLAUDE.md` and `GEMINI.md` import this file.)
 
 ## What this is
@@ -22,7 +22,7 @@ Do not pick design values silently. Ask these (run `sr_intake()` or `sonicray in
 
 Show the user a **quick sheet** (`sonicray sheet`) or a draft before any slow render, and get approval before `final`.
 
-## 2. Settled decisions (do not relitigate)
+## 2. Decisions I already settled (do not relitigate)
 - Sphere lights only; exact analytic illuminance x stochastic shadow ray; up to 32 lights per GPU pass; OIDN denoise is optional and on by default when installed.
 - Layers are `float32` RGB `.f32` files, row-major, one file per light. Do not change the format.
 - Compositing happens on the GPU; the CPU only builds a `FrameSpec` per frame (`inst/python/sonicray/framespec.py`). **To change the look of a film, edit or write a story** (`films/*.py`), not the compositor.
@@ -63,4 +63,4 @@ Changing terrain, camera, lights or resolution: **re-render layers** (minutes at
 - Do not push, publish or overwrite existing outputs without the user's explicit approval.
 
 ## 6. Credits
-Inspired by Tyler Morgan-Wall's rayshader/rayrender (not affiliated, no code shared). AI-written: see `AI_ATTRIBUTION.md`; keep the attribution if you extend the project.
+I am inspired by Tyler Morgan-Wall's rayshader and rayrender (I am not affiliated with him and share no code). Claude wrote most of this project under my direction: see `AI_ATTRIBUTION.md`, and keep the attribution if you extend the project.

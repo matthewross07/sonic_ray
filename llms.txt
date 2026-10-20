@@ -1,5 +1,5 @@
 # sonicray
-> Metal GPU path tracing + GPU compositor for light-layer films (Apple Silicon, R + Python). GPL-3. AI-assisted (Claude Sonnet 5.5); inspired by Tyler Morgan-Wall's rayrender/rayshader.
+> Metal GPU path tracing + GPU compositor for light-layer films (Apple Silicon, R + Python). GPL-3. I built it with Claude Sonnet 5.5 (effort high); I am inspired by Tyler Morgan-Wall's rayrender and rayshader.
 
 Start here, in this order:
 - [AGENTS.md](AGENTS.md): briefing for AI assistants: questions to ask the user, settled decisions, pitfalls, commands
