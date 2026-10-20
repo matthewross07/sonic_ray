@@ -16,10 +16,10 @@ image-textured terrain, denoising — comes straight out of that experience. `so
 ## What `sonicray` is, and is not
 - It **is** an independent attempt to reproduce rayrender-style results on Apple Silicon using Metal 3 hardware ray tracing and Intel Open Image Denoise.
 - It is **not** affiliated with, endorsed by, or a replacement for rayrender/rayshader, and it contains **no rayrender source code**
-  (rayrender is GPL-3; `sonicray` is MIT and written from scratch). rayrender remains the reference: we validate our images against its output.
-- The GPU request that started the conversation is [rayshader issue #328](https://github.com/tylermorganwall/rayshader/issues/328). If this work
-  turns out to be useful, the hope is to share it back with the rayverse (for example as a backend), on Tyler's terms.
+  (`sonicray` is also GPL-3, but written from scratch). rayrender remains the reference: we validate our images against its output.
+- A public feature request for GPU support exists: [rayshader issue #328](https://github.com/tylermorganwall/rayshader/issues/328), opened by another user. If this work
+  turns out to be useful, the hope is to share it back with the rayverse (for example as a backend), on Tyler's terms. Sharing the same licence (GPL-3) keeps that simple.
 
 ## Other thanks
 - **Intel Open Image Denoise** (Apache-2.0) — denoising. · **Apple Metal** — hardware ray tracing on Apple GPUs. · **Rcpp** — R/C++ glue.
-- **Sonic Pi** (Sam Aaron) — the generative soundtracks that sync to our films.
+- **Sonic Pi** (Sam Aaron) — optional soundtracks for our films (not part of this package; see docs/MUSIC_WITH_SONIC_PI.md).

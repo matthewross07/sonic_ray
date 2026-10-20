@@ -1,7 +1,8 @@
 #!/usr/bin/env Rscript
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 # Ground truth for a sphere light over a flat Lambertian plane, vs rayrender (CPU) and sonicray (GPU).
 #   irradiance at nadir  E = pi * L * sin(alpha)^2   (alpha = asin(r/h)),  outgoing radiance  Lo = rho/pi * E  = rho * L * sin(alpha)^2
-.libPaths(c(path.expand("~/Developer/rlib"), .libPaths()))
 suppressPackageStartupMessages({ library(sonicray); library(rayrender) })
 rho <- 0.5; Lrad <- 1000; h <- 3; rad <- 0.5; W <- 400L; Hh <- 300L
 cam <- list(lookfrom = c(0, 6, 10), lookat = c(0, 0, 0), fov = 40)

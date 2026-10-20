@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 # Helpers that connect the GPU path tracer (R) to the GPU compositor (Python): camera projection, texture sampling, layer files.
 
 #' Project world points to pixel coordinates (same convention as the compositor)

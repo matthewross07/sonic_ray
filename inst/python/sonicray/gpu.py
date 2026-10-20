@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 """Low-level Metal access for the sonicray compositor: builds the native library on first use, then wraps its C ABI with ctypes.
 
     g = GPU(W, H)

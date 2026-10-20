@@ -12,6 +12,8 @@ terrain mesh + albedo ──> Metal acceleration structure (built once, kept in 
 Layers are mapped straight into GPU buffers (no copy). Sparks are simulated on the CPU as geometry (vectorised numpy), rasterised on the GPU in 32x32 tiles.
 The day sky percentile is a GPU histogram. Native Metal code is compiled at run time (`newLibraryWithSource`), so only the Command Line Tools are needed.
 
+**Read the CPU column fairly.** It measures *our* earlier workflow built on rayrender (one render per light, 2x supersampling, adaptive sampling, scene rebuilt on each call), on one scene. It is not a benchmark of rayrender, which is a general-purpose renderer with far more features than this package.
+
 ## Measurements (Apple M4 Pro, macOS 15.7, Poudre film: 1920x1080, 3.8 M triangles, 162 layers, 3,900 frames)
 | | CPU | GPU |
 |---|---|---|
@@ -30,7 +32,7 @@ Lessons worth knowing: (1) numpy's BLAS spins one thread per core even for 3x3 p
 
 ## Known gaps
 - Sphere lights only; one GPU; up to 3 spark parameters; no volumetrics or glossy materials.
-- The path tracer and rayrender differ along shadow edges and in indirect fill; bounces add only 1-2% on the Poudre terrain.
+- Treat rayrender as the reference: our path tracer differs from it along shadow edges and in indirect fill; bounces add only 1-2% on the Poudre terrain.
 - Music is optional and outside the package (see MUSIC_WITH_SONIC_PI.md); the real-data Poudre inputs live outside this repository.
 - Tested on one machine. Not tested: clean Mac without Python packages, other macOS versions, other Apple chips.
 - `sr_demo(quality = "final")` renders at 1080p but was not timed.

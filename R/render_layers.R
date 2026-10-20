@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 # ==============================================================================
 # sonicray/R/render_layers.R
 # Batched Multi-Light GPU Path Tracing + Albedo-Demodulated Intel OIDN Denoising
@@ -7,7 +9,7 @@
 #'
 #' @param gpu_scene A `sonicray_gpu_scene` returned by [sr_upload_scene()].
 #' @param light_table Data frame of lights with columns `name`, `x`, `y`, `z`, `r`, `intensity`.
-#' @param lookfrom,lookat Camera 3-vectors in scene coordinates (default Panel 3 / Panel 6 Poudre framing).
+#' @param lookfrom,lookat Camera 3-vectors in scene coordinates (the defaults frame the Cache la Poudre scene; set your own).
 #' @param fov Vertical field-of-view in degrees (default 22.8).
 #' @param width,height Output layer resolution (default 1920 x 1080).
 #' @param amb_spp,light_spp Samples per pixel for ambient and point/sphere light batches.
@@ -133,8 +135,7 @@ sr_parity_check <- function(gpu_layer, cpu_layer) {
   list(
     rmse             = rmse,
     rel_mean_diff    = rel_mean,
-    cosine_similarity = sum(gpu_layer * cpu_layer) /
-                        max(sqrt(sum(gpu_layer^2)) * sqrt(sqrt(sum(cpu_layer^2))^2), 1e-8),
+    cosine_similarity = sum(gpu_layer * cpu_layer) / max(sqrt(sum(gpu_layer^2)) * sqrt(sum(cpu_layer^2)), 1e-8),
     passed           = abs(rel_mean) < 0.05 && rmse < 0.03
   )
 }

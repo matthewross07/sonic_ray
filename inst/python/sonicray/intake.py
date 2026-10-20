@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 """The questions an AI assistant must put to the user BEFORE rendering, with defaults and measured costs.
 
 `sonicray intake` prints them (add --json for machine-readable).  The point: design decisions (colours, quality, speed, length, text,

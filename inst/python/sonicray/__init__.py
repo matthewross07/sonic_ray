@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 """sonicray: GPU (Metal) compositing for light-layer films on Apple Silicon.  See AGENTS.md in the repository root first."""
 import os as _os
 

@@ -6,7 +6,7 @@
 \arguments{
 \item{gpu_scene}{A `sonicray_gpu_scene` returned by [sr_upload_scene()].}
 \item{light_table}{Data frame of lights with columns `name`, `x`, `y`, `z`, `r`, `intensity`.}
-\item{lookfrom,lookat}{Camera 3-vectors in scene coordinates (default Panel 3 / Panel 6 Poudre framing).}
+\item{lookfrom,lookat}{Camera 3-vectors in scene coordinates (the defaults frame the Cache la Poudre scene; set your own).}
 \item{fov}{Vertical field-of-view in degrees (default 22.8).}
 \item{width,height}{Output layer resolution (default 1920 x 1080).}
 \item{amb_spp,light_spp}{Samples per pixel for ambient and point/sphere light batches.}

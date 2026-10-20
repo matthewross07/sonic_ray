@@ -1,0 +1,16 @@
+sonicray
+Copyright (C) 2026 Matthew Ross
+Licensed under the GNU General Public License, version 3 (see LICENSE).
+Written with AI assistance (Anthropic Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
+
+Inspired by Tyler Morgan-Wall's rayshader and rayrender (both GPL-3). sonicray is independent, is not affiliated with him,
+and contains no rayrender/rayshader source code.
+
+Third-party components (none is bundled in this repository):
+  Rcpp                          GPL (>= 2)   linked into the R package (compatible with GPL-3)
+  R                             GPL          runtime
+  Intel Open Image Denoise      Apache-2.0   optional, installed separately (brew install open-image-denoise); compatible with GPL-3
+  numpy, Pillow                 BSD / HPND   Python runtime dependencies of the GPU compositor, installed separately
+  ffmpeg                        LGPL/GPL     external program used for video encoding, installed separately
+  Apple Metal, Foundation       system frameworks
+  rayrender                     GPL-3        optional; only used by the parity scripts in tools/ and film/ for comparison, installed separately

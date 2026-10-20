@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 """Per-kernel GPU cost in ms (each kernel repeated 20x inside ONE command buffer, so sync overhead is excluded)."""
 import os, struct, sys, time
 import numpy as np

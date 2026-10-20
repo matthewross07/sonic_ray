@@ -1,8 +1,9 @@
 #!/usr/bin/env Rscript
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 # Light-layer parity: GPU (sonicray) vs CPU (rayrender) for the same single lights on the exact Poudre v2 (60 m) scene.
-.libPaths(c(path.expand("~/Developer/rlib"), .libPaths()))
 suppressPackageStartupMessages({ library(sonicray); library(png); library(jsonlite) })
-VIS <- Sys.getenv("VISUALS", "/Users/mrvr/Library/CloudStorage/GoogleDrive-matthew.r.v.ross@gmail.com/My Drive/OpenCurrent/Presentations/In-Situ Pitch Meeting/visuals")
+VIS <- Sys.getenv("VISUALS")   # path to your visuals folder (set the VISUALS environment variable)
 CACHE <- path.expand("~/.cache/poudre_3d_v2_yaw256_60m"); Sys.setenv(POUDRE3D_CACHE = CACHE)
 W <- 1920L; H <- 1080L
 S <- readRDS(file.path(CACHE, "scene.rds")); cam <- fromJSON(file.path(CACHE, "layers_1920x1080", "scene_meta.json"))$cam

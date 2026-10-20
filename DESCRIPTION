@@ -10,7 +10,7 @@ Description: GPU (Metal) path tracing of per-light 'light layers' and a GPU comp
     weighted sum of layers: render each light once on the GPU, then re-time and re-colour freely. Inspired by, and an
     attempt to follow, the work of Tyler Morgan-Wall (rayshader, rayrender); not affiliated with him and containing none of
     his code. Written with AI assistance (Anthropic Claude Sonnet 5.5, via Claude Code); see AI_ATTRIBUTION.md.
-License: MIT + file LICENSE
+License: GPL-3
 URL: https://github.com/matthewross07/sonic_ray
 BugReports: https://github.com/matthewross07/sonic_ray/issues
 Encoding: UTF-8
@@ -23,9 +23,4 @@ Imports:
 LinkingTo:
     Rcpp
 Suggests:
-    terra,
-    rayrender,
-    rayshader,
-    rayvertex,
-    skymodelr,
-    testthat (>= 3.0.0)
+    rayrender

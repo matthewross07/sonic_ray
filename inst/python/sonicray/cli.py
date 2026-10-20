@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 """Command line:  python3 -m sonicray <doctor|selftest|compose|still|bench> ...   (or the `sonicray` wrapper script in inst/bin).
 
 Every command prints plain, grep-able lines; `doctor --json` prints one JSON object so an AI assistant can read the machine state.

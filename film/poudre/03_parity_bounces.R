@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 # Re-test GPU light layers vs the saved rayrender CPU layers for several bounce counts.
-.libPaths(c(path.expand("~/Developer/rlib"), .libPaths()))
 suppressPackageStartupMessages({ library(sonicray); library(png); library(jsonlite) })
 CACHE <- path.expand("~/.cache/poudre_3d_v2_yaw256_60m"); W <- 1920L; H <- 1080L
 S <- readRDS(file.path(CACHE, "scene.rds")); cam <- fromJSON(file.path(CACHE, "layers_1920x1080", "scene_meta.json"))$cam

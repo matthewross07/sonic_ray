@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 // =============================================================================
 // sonicray/src/metal_context.h
 // Shared C++ / Objective-C++ host structures matching sonicray_pathtracer.metal

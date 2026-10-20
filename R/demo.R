@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 #' Run the whole pipeline on SYNTHETIC data (about a minute at draft quality)
 #'
 #' Invented terrain + invented sensors and samples -> GPU path-traced light layers -> GPU compositor -> mp4. The data are synthetic;

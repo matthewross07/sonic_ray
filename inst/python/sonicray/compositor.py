@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 """GpuCompositor: FrameSpec -> uint8 RGB frame, entirely on the Apple GPU.
 
 Per frame the CPU only builds a FrameSpec (cheap, in the story) and the spark primitive list (numpy); every pixel operation runs as a

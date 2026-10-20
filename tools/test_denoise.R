@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 # Does OIDN (via sonicray) actually reduce error?  noisy(8 spp) vs reference(512 spp), with and without denoising.
-.libPaths(c(path.expand("~/Developer/rlib"), .libPaths()))
 suppressPackageStartupMessages({ library(terra); library(sonicray) })
 info <- sr_device_info(); print(unlist(info))
 stopifnot(isTRUE(info$oidn_available))

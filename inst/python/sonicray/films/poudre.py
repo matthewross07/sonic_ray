@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 """Cache la Poudre v2 story (2:10, no on-screen text): t -> FrameSpec.
 
 Ported from the original CPU compositor (visuals/poudre_3d_v2/02_compose_video.py) so that this package is self-contained.  All the

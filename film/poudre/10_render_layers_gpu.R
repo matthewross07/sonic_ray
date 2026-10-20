@@ -1,4 +1,6 @@
 #!/usr/bin/env Rscript
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 # =============================================================================
 # film/poudre/10_render_layers_gpu.R
 # Re-creates every light layer of the Cache la Poudre v2 (60 m, yaw 256) film on the Metal GPU with sonicray, in the SAME .f32 format
@@ -8,7 +10,6 @@
 # Inputs : the CPU pipeline's scene cache (scene.rds, albedo.png, rivers.png, edge.png, uv_u.png, uv_v.png) -- identical geometry/camera/textures.
 # Reused : sky_0..6 and stars (skymodelr atmosphere, not path tracing) and scene_meta.json are copied from the reference cache.
 # =============================================================================
-.libPaths(c(path.expand("~/Developer/rlib"), .libPaths()))
 suppressPackageStartupMessages({ library(sonicray); library(png); library(jsonlite) })
 args <- commandArgs(trailingOnly = TRUE)
 OUT      <- path.expand(if (length(args) >= 1) args[1] else "~/.cache/sonicray_poudre/layers_1920x1080")

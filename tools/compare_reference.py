@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 """Parity check: sonicray GPU compositor vs the original CPU compositor (visuals/poudre_3d_v2/02_compose_video.py) on the same layers.
 
   python3 tools/compare_reference.py --layers LAYERS --ref /path/to/02_compose_video.py --times 21.3 56 82 99 109

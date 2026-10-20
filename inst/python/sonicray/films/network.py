@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 """Generic sensor-network story: beacons for sensors, fireworks for samples.  DATA-DRIVEN -- this is the story to adapt for real data.
 
 Inputs, all in the layers directory:

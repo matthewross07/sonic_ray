@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 """FrameSpec: a plain-data description of ONE frame. A *story* (e.g. films/poudre.py) turns a time t into a FrameSpec; the GPU
 compositor (compositor.py) turns a FrameSpec into pixels. Keeping the two apart is deliberate: all creative decisions (what lights up
 when, colours, seasons, sun path) live in the story; all pixel work lives on the GPU. To make a new film, write a new story -- do not

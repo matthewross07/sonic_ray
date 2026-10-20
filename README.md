@@ -47,6 +47,8 @@ Cache la Poudre film, 1080p30, 130 s, Apple M4 Pro (real data; the film that mot
 | Composite 3,900 frames | 15.7 min (measured, partly contended; ~10 min unloaded) | **95 s** (81 s with x264 `fast`) |
 | End to end | ~49-55 min | **~2.7 min (about 18-20x)** |
 
+*The CPU numbers are for our specific workflow (one render per light, 2x supersampling, adaptive sampling, scene rebuilt on every call) and are not a general benchmark of rayrender, which is a general-purpose renderer.*
+
 The synthetic demo at draft quality (960x540, 18 s): layers 7.8 s, composite 2.3 s. Method, caveats and parity numbers: [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
 
 ## Music (optional)
@@ -70,4 +72,4 @@ the design decisions that are already settled (so you do not spend time re-debat
 | [AI_ATTRIBUTION.md](AI_ATTRIBUTION.md) | what AI did, what was verified |
 | [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md) | credits |
 
-MIT licence. macOS on Apple Silicon only.
+GPL-3 licence (the same licence as rayshader and rayrender); third-party components are listed in [NOTICE](NOTICE). macOS on Apple Silicon only.

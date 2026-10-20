@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
 """Firework sparks: CPU-side *geometry* (vectorised numpy over every spark of every burst in the frame), GPU-side *pixels*.
 
 The reference compositor drew each spark segment with PIL (thousands of Python-level draw calls per frame). Here the simulation is the
