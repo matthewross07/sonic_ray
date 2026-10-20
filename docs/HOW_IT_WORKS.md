@@ -21,6 +21,7 @@ The day sky percentile is a GPU histogram. Native Metal code is compiled at run 
 | Per frame (compositor, one process) | 1-3 s | 10-80 ms |
 
 Parity with the CPU compositor on the same layers: sky/sun frames within 1/255; firework frames within 0.3-0.6% total light, with about 3% of pixels differing by more than 8/255 at spark edges.
+Whole film vs the earlier CPU-composited film of the same layers: mean 49.2 dB PSNR over 3,900 frames, worst frame 38.5 dB (a firework frame; differences are spark edges).
 Layers vs rayrender: ambient and sun within a few percent; near sphere lights median ratio 0.9-1.04; shadow edges differ.
 Synthetic demo (draft 960x540, 18 s): layers 7.8 s, composite 2.3 s.
 
