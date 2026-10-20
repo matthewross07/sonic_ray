@@ -37,6 +37,12 @@ To use real sensors and a real elevation model, see [docs/BRING_YOUR_OWN_DATA.md
 <p align="center"><sub><b>Synthetic data.</b> Invented terrain, sensors and samples, made by <code>sr_demo()</code> (about 20 s on an M4 Pro at review quality).
 <a href="docs/media/demo_synthetic.mp4">Full-quality mp4</a> · <a href="docs/media/demo_quick_sheet.png">quick sheet</a></sub></p>
 
+## A real-data example
+
+The full **Cache la Poudre** film (130 s, 1080p30) was made with this package from real data: real elevation, 18 real sonde sites and real Water Quality Portal samples.
+**[Watch it on Google Drive](https://drive.google.com/file/d/1ZK00RkxaJZzP5XXc6u0OaxfVcurk3Hm7/view?usp=sharing)** (the soundtrack is an optional Sonic Pi score made separately, see below). The input data are not included in this repository;
+the demo above is synthetic so that anyone can run it.
+
 ## How fast
 
 Cache la Poudre film, 1080p30, 130 s, Apple M4 Pro (real data; the film that motivated this package):

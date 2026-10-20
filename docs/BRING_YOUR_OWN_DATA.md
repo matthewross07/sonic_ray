@@ -3,7 +3,7 @@
 ## What is real and what is synthetic
 - **The bundled demo (`sr_demo()`) is entirely SYNTHETIC.** The terrain, river, 12 sensors and ~90 samples (`param_a/b/c`) are invented by `sr_demo_data()` from a random seed.
   They exist to show the pipeline and the file formats. Do not present demo output as real measurements.
-- **The Cache la Poudre film is the real-data case study** the package grew from (real elevation model, real sonde sites, real Water Quality Portal samples).
+- **The Cache la Poudre film is the real-data case study** ([watch it](https://drive.google.com/file/d/1ZK00RkxaJZzP5XXc6u0OaxfVcurk3Hm7/view?usp=sharing)) the package grew from (real elevation model, real sonde sites, real Water Quality Portal samples).
   Its code is included as a story (`inst/python/sonicray/films/poudre.py`) and a layer script (`film/poudre/`), but its data are **not** shipped.
 
 ## Making your own film from real sensors
