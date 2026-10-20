@@ -1,5 +1,10 @@
 # `sonicray` Architecture & Engineering Blueprint
 
+> **Note (read first):** this is a *design* document written before most of the code was verified. It describes the intended architecture; the
+> authoritative record of what actually works, with measurements, is the status table in [README.md](README.md) and [GETTING_STARTED.md](GETTING_STARTED.md).
+> Performance figures quoted below are targets unless they appear in those files. Credit: this project follows the work of Tyler Morgan-Wall (rayshader/rayrender), see [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md).
+
+
 This document synthesizes the original `raymetal` spike plan (`visuals/ideas/metal_gpu_rayrender_plan.md`) with the production lessons learned building the Denver Water (`denver_3d_v2`) and Cache la Poudre (`poudre_3d_v2`) 3D network films.
 
 ---
