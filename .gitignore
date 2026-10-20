@@ -16,8 +16,10 @@ src/*.dll
 # big generated data: never commit (layers, caches, videos, wav)
 *.f32
 *.mp4
+!docs/media/*.mp4
 *.mov
 *.wav
+!docs/media/*.gif
 cache/
 out/
 compositor/*.dylib

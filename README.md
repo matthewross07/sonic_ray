@@ -33,6 +33,10 @@ sr_demo("my_demo")             # SYNTHETIC data -> GPU light layers -> GPU compo
 **The demo data are synthetic**: an invented river valley, invented sensors and invented "samples". They show the pipeline and file formats, not real measurements.
 To use real sensors and a real elevation model, see [docs/BRING_YOUR_OWN_DATA.md](docs/BRING_YOUR_OWN_DATA.md).
 
+<p align="center"><img src="docs/media/demo_synthetic.gif" width="560" alt="Synthetic demo: sensors light up along an invented river valley and fire a firework for each sample"></p>
+<p align="center"><sub><b>Synthetic data.</b> Invented terrain, sensors and samples, made by <code>sr_demo()</code> (about 20 s on an M4 Pro at review quality).
+<a href="docs/media/demo_synthetic.mp4">Full-quality mp4</a> · <a href="docs/media/demo_quick_sheet.png">quick sheet</a></sub></p>
+
 ## How fast
 
 Cache la Poudre film, 1080p30, 130 s, Apple M4 Pro (real data; the film that motivated this package):
@@ -44,6 +48,11 @@ Cache la Poudre film, 1080p30, 130 s, Apple M4 Pro (real data; the film that mot
 | End to end | ~49-55 min | **~2.7 min (about 18-20x)** |
 
 The synthetic demo at draft quality (960x540, 18 s): layers 7.8 s, composite 2.3 s. Method, caveats and parity numbers: [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
+
+## Music (optional)
+
+Soundtracks are **not part of the package**. The Poudre film's score was made with [Sonic Pi](https://sonic-pi.net) (free, separate app) by asking an AI assistant to write a script locked to
+the film's event times; the finished `.wav` is muxed in with `sonicray compose --audio score.wav`. See [docs/MUSIC_WITH_SONIC_PI.md](docs/MUSIC_WITH_SONIC_PI.md) for the recipe and a prompt to give your assistant.
 
 ## Using it with an AI assistant
 
@@ -57,6 +66,7 @@ the design decisions that are already settled (so you do not spend time re-debat
 | [AGENTS.md](AGENTS.md) | the briefing for AI assistants (start here if you are one) |
 | [docs/BRING_YOUR_OWN_DATA.md](docs/BRING_YOUR_OWN_DATA.md) | synthetic demo vs real data; file formats |
 | [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md) | design, measurements, known gaps |
+| [docs/MUSIC_WITH_SONIC_PI.md](docs/MUSIC_WITH_SONIC_PI.md) | optional: add a synced soundtrack |
 | [AI_ATTRIBUTION.md](AI_ATTRIBUTION.md) | what AI did, what was verified |
 | [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md) | credits |
 

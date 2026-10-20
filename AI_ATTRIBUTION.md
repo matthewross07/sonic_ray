@@ -7,7 +7,7 @@ designs, reviewed the results and made the decisions. The AI wrote most of the c
 |---|---|
 | Model | Anthropic **Claude Sonnet 5.5** (`claude-sonnet-5-5`) |
 | Tool | Claude Code (desktop app, Code tab), running locally with file, shell and browser tools |
-| Effort setting | **"high"**, as stated by the author. (The model cannot verify its own effort setting from inside a session; treat this line as the author's statement.) |
+| Effort setting | **high**, confirmed by the author (the model cannot read its own effort setting from inside a session, so this comes from the author) |
 | Period | October 2026 |
 | Git | AI-written commits carry a `Co-Authored-By: Claude Sonnet 5.5` trailer |
 

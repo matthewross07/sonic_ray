@@ -17,7 +17,7 @@ Do not pick design values silently. Ask these (run `sr_intake()` or `sonicray in
 4. **Colours**: a colour for each of up to 3 measured parameters, sensor beacons, terrain glow. Colour-blind-safe needed?
 5. **Look**: night only (default) or also sunrise/sky? Stars? On-screen text? (default: **no text**, the presenter narrates)
 6. **Speed vs quality**: fast encode (x264 `fast`, ~2x quicker, ~0.3 dB lower) or slow (final)?
-7. **Audio**: a .wav to mux (with offset), or none?
+7. **Audio**: none, or a .wav to mux (with offset)? Music is optional and outside the package: see `docs/MUSIC_WITH_SONIC_PI.md`.
 8. **Output**: folder and a NEW file name (never overwrite an approved film).
 
 Show the user a **quick sheet** (`sonicray sheet`) or a draft before any slow render, and get approval before `final`.

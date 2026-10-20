@@ -31,6 +31,6 @@ Lessons worth knowing: (1) numpy's BLAS spins one thread per core even for 3x3 p
 ## Known gaps
 - Sphere lights only; one GPU; up to 3 spark parameters; no volumetrics or glossy materials.
 - The path tracer and rayrender differ along shadow edges and in indirect fill; bounces add only 1-2% on the Poudre terrain.
-- The Sonic Pi soundtrack generator and the real-data Poudre inputs live outside this repository.
+- Music is optional and outside the package (see MUSIC_WITH_SONIC_PI.md); the real-data Poudre inputs live outside this repository.
 - Tested on one machine. Not tested: clean Mac without Python packages, other macOS versions, other Apple chips.
 - `sr_demo(quality = "final")` renders at 1080p but was not timed.
