@@ -4,6 +4,8 @@ export(
   sr_metal_available,
   sr_device_info,
   sr_scene_from_dem,
+  sr_mesh_from_heightfield,
+  sr_upload_mesh,
   sr_upload_scene,
   sr_render_light_layers,
   sr_denoise_layer,

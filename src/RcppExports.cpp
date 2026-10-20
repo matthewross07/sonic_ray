@@ -10,6 +10,18 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// cpp_vertex_normals
+NumericMatrix cpp_vertex_normals(NumericMatrix vertices, IntegerMatrix indices);
+RcppExport SEXP _sonicray_cpp_vertex_normals(SEXP verticesSEXP, SEXP indicesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type vertices(verticesSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type indices(indicesSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_vertex_normals(vertices, indices));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpp_metal_device_info
 List cpp_metal_device_info();
 RcppExport SEXP _sonicray_cpp_metal_device_info() {
@@ -95,6 +107,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_sonicray_cpp_vertex_normals", (DL_FUNC) &_sonicray_cpp_vertex_normals, 2},
     {"_sonicray_cpp_metal_device_info", (DL_FUNC) &_sonicray_cpp_metal_device_info, 0},
     {"_sonicray_cpp_upload_scene", (DL_FUNC) &_sonicray_cpp_upload_scene, 9},
     {"_sonicray_cpp_render_ambient_and_aovs", (DL_FUNC) &_sonicray_cpp_render_ambient_and_aovs, 8},

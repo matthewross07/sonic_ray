@@ -11,6 +11,8 @@
 #' @param fov Vertical field-of-view in degrees (default 22.8).
 #' @param width,height Output layer resolution (default 1920 x 1080).
 #' @param amb_spp,light_spp Samples per pixel for ambient and point/sphere light batches.
+#' @param max_bounces Surface vertices per path with next-event estimation (1 = direct light only, 4 = three indirect bounces).
+#' @param clamp Per-sample brightness clamp (fireflies); the CPU film pipeline used 12, which also clips genuine near-light highlights.
 #' @param batch_size Number of lights evaluated simultaneously per BVH traversal (1..32, default 16).
 #' @param denoise Logical; run albedo-demodulated Intel OIDN on each layer (default TRUE).
 #' @param out_dir Optional directory to write `.f32` layer files compatible with `02_compose_video.py`.
@@ -25,7 +27,8 @@ sr_render_light_layers <- function(
   height     = 1080L,
   amb_spp    = 128L,
   light_spp  = 48L,
-  max_bounces = 2L,
+  max_bounces = 4L,
+  clamp      = 50,
   batch_size = 16L,
   denoise    = TRUE,
   out_dir    = NULL
@@ -84,7 +87,7 @@ sr_render_light_layers <- function(
       height                = height,
       samples               = light_spp,
       max_bounces           = max_bounces,
-      clamp_val             = 12.0,
+      clamp_val             = clamp,
       light_pos_r_intensity = mat
     )
 
