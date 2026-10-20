@@ -55,8 +55,11 @@ If `oidn_available` is `FALSE` after installing OIDN, rebuild (`R CMD INSTALL .`
 | Ambient layer @ 64 spp | — | 0.10 s |
 | All 162 layer files of the film | **39.3 min** (file timestamps) | **64.5 s** (512 spp lights, 1024 spp ambient) |
 
+| Compose 3,900 frames (x264 slow, CRF 13, sharpen, dither) | **15 min 41 s** (Python/scipy, 8 procs, machine partly busy) | **161 s** (Metal compositor, 10 procs) |
+| **Layers + composite, end to end** | ≈ 49–55 min | **≈ 3.8 min (≈ 13–15×)** |
+
 The CPU time is the wall-clock span of the reference layers' file timestamps and includes SS=2 supersampling; the GPU numbers use pixel-jittered
-AA instead. The compositor (Python) is **not yet GPU-accelerated**, so end-to-end speed-up is limited by it — see the roadmap.
+AA instead. The compositor now runs on the GPU too (`compositor/`: layers are memory-mapped straight into Metal buffers; layer sums, satellite scan, halo, tone map, sharpen, bloom, sky blend, firework overlay, beacons, dither and quantise are kernels; worker processes only do the timeline, spark drawing and sun-era sky). Build it with `compositor/build.sh`, check it with `python3 film/poudre/20_compose_gpu.py --layers LAYERS --compare 21.3 82 109`. Use `spawn`, not `fork`, for worker processes: forked children that touch Metal crash. Remaining floor: the CPU-side spark drawing/sky and the x264 encode.
 
 ## 5. Known gaps (be skeptical of these until fixed)
 
@@ -64,12 +67,12 @@ AA instead. The compositor (Python) is **not yet GPU-accelerated**, so end-to-en
   the burst test, mostly thin filaments at shadow terminators). Cause not fully understood — possibly shading- vs geometric-normal handling.
 - Indirect (bounce) light adds only ~1–2 % here; rayrender's shadows are visibly filled in. Needs investigation.
 - Textures are uploaded as 32-bit float from R doubles (≈ 0.7 GB for 4608×4856): works on 48 GB, wasteful. An 8-bit upload path is a TODO.
-- `sr_timeline`, `sr_seasonal_curve`, `sr_write_sonic_pi`, `sr_compose_video` are skeletons; the GPU compositor kernel has no host code.
+- `sr_timeline`, `sr_seasonal_curve`, `sr_write_sonic_pi`, `sr_compose_video` are still R skeletons; the working GPU compositor is the Python/ctypes one in `compositor/` and the film driver reuses the reference film's timeline code.
 - Single device (the default GPU), no multi-GPU; sphere lights only (no area/mesh lights, no volumes, no glossy materials).
 
 ## 6. Roadmap
 
-1. **GPU compositor** (largest remaining cost): weighted layer sum + bloom + tone map + sharpen in Metal, layers resident in unified memory.
+1. ~~GPU compositor~~ done (see above). Next: move spark drawing and the sun-era sky to the GPU, and a hardware-encode option.
 2. Close the remaining parity gaps (shadow terminator handling, bounce fill) and add a parity test to CI.
 3. 8-bit texture upload; reuse the OIDN device across layers.
 4. Port the fireworks/satellite overlay to the GPU or vectorise it.

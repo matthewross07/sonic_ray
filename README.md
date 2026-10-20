@@ -38,7 +38,8 @@ spend most of their time rendering these layers; `sonicray` renders the same lay
 | Intel OIDN denoising | **verified** | 8 spp + OIDN has 3.2× lower error than raw 8 spp (vs a 512 spp reference), mean unchanged |
 | Whole Poudre film's layers on GPU (162 files) | **verified** | 64.5 s vs 39.3 min on CPU (≈ 36×) |
 | Unchanged CPU compositor on GPU layers | **verified (sheet)** | 9-panel sheet visually matches the reference film |
-| GPU compositor (`sonicray_compositor.metal`) | **kernel compiles, not wired up** | no host code yet |
+| GPU compositor (`compositor/`, driver `film/poudre/20_compose_gpu.py`) | **verified** | Poudre film composited in **161 s** vs 941 s for the CPU compositor (5.8×); 13 story moments differ from the CPU compositor by ≤ 3/255 (mean < 0.01); whole film 45–51 dB PSNR vs the CPU-composited film |
+| End to end (layers + composite), Poudre v2, 1080p30 | **measured** | ≈ 3.8 min vs ≈ 49–55 min on CPU (≈ 13–15×), excluding one-off scene prep and the 3 s audio mux |
 | `sr_timeline`, `sr_seasonal_curve`, `sr_write_sonic_pi`, `sr_compose_video` | **skeletons** | small R stubs, not used by the film pipeline |
 | `rayrender::render_scene(backend = "metal")` hook | not started | |
 
