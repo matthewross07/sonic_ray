@@ -3,7 +3,7 @@ importFrom(Rcpp, evalCpp)
 S3method(print, sonicray_demo_data)
 export(
   sr_metal_available, sr_device_info, sr_doctor, sr_intake, sr_presets,
-  sr_mesh_from_heightfield, sr_upload_mesh, sr_render_light_layers, sr_denoise_layer, sr_parity_check,
+  sr_mesh_from_heightfield, sr_upload_mesh, sr_render_light_layers, sr_parity_check,
   sr_project, sr_sample_texture,
   sr_still, sr_sheet, sr_compose,
   sr_demo_data, sr_demo

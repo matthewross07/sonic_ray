@@ -11,15 +11,15 @@ I am super inspired by everything he has built.**
 
 I first rendered my 3D environmental-data films (Denver Water and Cache la Poudre) entirely with rayrender and rayshader. Every design idea in
 `sonicray` comes straight out of that experience: rendering each light as its own *layer* and recombining the layers linearly, invisible emissive spheres as lights, adaptive sampling,
-image-textured terrain, denoising. `sonicray` asks one question: *how fast could this run on a GPU?*
+image-textured terrain. `sonicray` asks one question: *how fast could this run on a GPU?*
 
 ## What `sonicray` is, and is not
-- It **is** my independent attempt to reproduce rayrender-style results on Apple Silicon with Metal 3 hardware ray tracing and Intel Open Image Denoise.
+- It **is** my independent attempt to reproduce rayrender-style results on Apple Silicon with Metal 3 hardware ray tracing.
 - It **is not** affiliated with, endorsed by, or a replacement for rayrender or rayshader, and it contains **no rayrender source code**.
   I license `sonicray` under GPL-3 like rayrender, but Claude wrote it from scratch. rayrender stays the reference: we validate our images against its output.
 - I have long wanted to do this, and AI assistance finally made it possible. If this work proves useful, I hope to share it back with the rayverse
   (for example as a backend) on Tyler's terms. Sharing the same licence (GPL-3) keeps that simple.
 
 ## Other thanks
-- **Intel Open Image Denoise** (Apache-2.0) for denoising, **Apple Metal** for hardware ray tracing on Apple GPUs, and **Rcpp** for the R/C++ glue.
+- **Apple Metal** for hardware ray tracing on Apple GPUs, and **Rcpp** for the R/C++ glue.
 - **Sonic Pi** (Sam Aaron) for the optional soundtracks on my films. It is not part of this package; see docs/MUSIC_WITH_SONIC_PI.md.

@@ -30,7 +30,7 @@ sr_demo <- function(out_dir = "sonicray_demo", quality = c("draft", "review", "f
   }
   lights <- do.call(rbind, L)
   res <- tm(sprintf("%d light layers", nrow(lights)), sr_render_light_layers(gpu, lights, lookfrom = d$cam$lookfrom, lookat = d$cam$lookat, fov = d$cam$fov,
-              width = P$w, height = P$h, amb_spp = P$amb, light_spp = P$lig, max_bounces = 4L, clamp = 50, batch_size = 32L, denoise = FALSE, out_dir = layers))
+              width = P$w, height = P$h, amb_spp = P$amb, light_spp = P$lig, max_bounces = 4L, clamp = 50, batch_size = 32L, out_dir = layers))
   # river mask (R = river, G = all water) and a sparse starfield, written in the compositor's layer format
   uv <- matrix(res$aovs$uv, ncol = 2, byrow = TRUE); mask <- as.numeric(res$aovs$mask)
   riv <- cbind(sr_sample_texture(d$river, uv[, 1], uv[, 2]), sr_sample_texture(d$water, uv[, 1], uv[, 2]), 0) * mask

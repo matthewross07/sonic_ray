@@ -15,7 +15,6 @@ args <- commandArgs(trailingOnly = TRUE)
 OUT      <- path.expand(if (length(args) >= 1) args[1] else "~/.cache/sonicray_poudre/layers_1920x1080")
 LIGHT_SPP <- if (length(args) >= 2) as.integer(args[2]) else 512L
 AMB_SPP   <- if (length(args) >= 3) as.integer(args[3]) else 1024L
-DENOISE   <- identical(Sys.getenv("SONICRAY_DENOISE", "0"), "1")
 CACHE <- path.expand(Sys.getenv("POUDRE_CACHE", "~/.cache/poudre_3d_v2_yaw256_60m")); REF <- file.path(CACHE, "layers_1920x1080")
 W <- 1920L; H <- 1080L; dir.create(OUT, recursive = TRUE, showWarnings = FALSE)
 T0 <- Sys.time(); stamp <- function(label, t0) cat(sprintf("  %-44s %7.2f s\n", label, as.numeric(difftime(Sys.time(), t0, units = "secs"))))
@@ -65,7 +64,7 @@ lights <- do.call(rbind, L); rownames(lights) <- NULL
 cat(sprintf("  %d light layers to render (%d site bursts, %d cells, %d beacons, 7 sun)\n", nrow(lights), 3 * nrow(s), nrow(cells), nrow(s)))
 t_l <- Sys.time()
 res <- sr_render_light_layers(gpu, lights, lookfrom = cam$lookfrom, lookat = cam$lookat, fov = cam$fov, width = W, height = H, amb_spp = 4L,
-                              light_spp = LIGHT_SPP, max_bounces = 4L, clamp = 50, batch_size = 32L, denoise = DENOISE, out_dir = OUT)
+                              light_spp = LIGHT_SPP, max_bounces = 4L, clamp = 50, batch_size = 32L, out_dir = OUT)
 stamp(sprintf("%d light layers @%d spp (batches of 32)", nrow(lights), LIGHT_SPP), t_l)
 file.remove(file.path(OUT, "amb.f32"), file.path(OUT, "mask.f32"))   # sr_render_light_layers also wrote a 4-spp amb/mask: keep ours above
 save_layer(aov$amb, "amb"); save_layer(mask, "mask")

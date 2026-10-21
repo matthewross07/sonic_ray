@@ -11,7 +11,7 @@ Hm <- matrix(1000, 60, 60); mesh <- sr_mesh_from_heightfield(Hm, c(-12, 12), c(-
 gpu <- sr_upload_mesh(mesh, array(rho, c(8, 8, 3)))
 lt <- data.frame(name = "L", x = 0, y = h, z = 0, r = rad, intensity = Lrad)
 g <- sr_render_light_layers(gpu, lt, lookfrom = cam$lookfrom, lookat = cam$lookat, fov = cam$fov, width = W, height = Hh,
-                            amb_spp = 4L, light_spp = 1024L, max_bounces = 1L, clamp = 1e4, batch_size = 1L, denoise = FALSE)$layers[[1]]
+                            amb_spp = 4L, light_spp = 1024L, max_bounces = 1L, clamp = 1e4, batch_size = 1L)$layers[[1]]
 G <- aperm(array(g, c(3, W, Hh)), c(3, 2, 1))
 # --- CPU: rayrender, same plane / light / camera
 scene <- xz_rect(xwidth = 24, zwidth = 24, y = 0, material = diffuse(color = c(rho, rho, rho))) %>%

@@ -15,7 +15,6 @@ Render each light once on the GPU, then re-time, re-colour and re-cut the film i
 ```bash
 xcode-select --install                      # compiler (skip if already installed)
 brew install ffmpeg                         # video encoder
-brew install open-image-denoise             # optional denoiser (not needed for most work)
 ```
 ```r
 install.packages("remotes")
@@ -50,12 +49,12 @@ I measured the Cache la Poudre film (1080p30, 130 s, real data, the film that mo
 | Stage | CPU workflow (rayrender + Python) | sonicray |
 |---|---|---|
 | 146 light layers | 39.3 min | **18 s** (128 samples per pixel; 58 s at 512) |
-| Composite 3,900 frames | 15.7 min (measured, partly contended; about 10 min unloaded) | **61 s** with x264, **40 s** with the Apple hardware encoder |
-| End to end | about 49-55 min | **about 65-90 s (35-50x)** |
+| Composite 3,900 frames | 15.7 min (measured, partly contended; about 10 min unloaded) | **61-75 s** with x264, **40-46 s** with the Apple hardware encoder |
+| End to end | about 49-55 min | **about 65-100 s (30-50x)** |
 
 *The CPU numbers measure my own earlier workflow (one render per light, 2x supersampling, adaptive sampling, scene rebuilt on every call). They do not benchmark rayrender, a general-purpose renderer.*
 
-The synthetic demo takes 2.9 s end to end at draft quality (960x540) and 5.5 s at review quality (1280x720). Everything runs in one C++ process: no Python, no worker processes.
+The synthetic demo takes 2.9 s end to end at draft quality (960x540), 5.8 s at review (1280x720) and 17 s at final (1920x1080). Everything runs in one C++ process, in R and C++ only: no Python and no third-party libraries beyond Apple's own.
 Method, what I tried that did not help, and parity numbers: [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
 
 ## Music (optional)

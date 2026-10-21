@@ -13,7 +13,7 @@ sr_metal_available <- function() {
   isTRUE(info$available) && isTRUE(info$supports_raytracing)
 }
 
-#' Query Apple Silicon GPU, Unified Memory, and Intel OIDN capabilities
+#' Query the Apple Silicon GPU and its ray-tracing and unified-memory capabilities
 #' @export
 sr_device_info <- function() {
   cpp_metal_device_info()

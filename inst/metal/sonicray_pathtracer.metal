@@ -93,7 +93,7 @@ inline float3 sample_cosine_hemisphere(float2 u, float3 n) {
 
 // -----------------------------------------------------------------------------
 // Kernel 1: Primary Ambient + First-Hit Auxiliary AOV Pass (amb, mask, albedo, normal, uv, riv)
-// Renders the ambient sky-fill layer AND outputs noise-free guide buffers for Intel OIDN
+// Renders the ambient sky-fill layer AND the first-hit buffers (mask, albedo, normal, uv, river mask)
 // and world-space UV position maps for satellite scanlines in a SINGLE pass.
 // -----------------------------------------------------------------------------
 kernel void render_ambient_and_aovs_kernel(

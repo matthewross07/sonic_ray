@@ -11,7 +11,7 @@ namespace sr {
 namespace {
 
 double smooth(double x) { x = std::min(std::max(x, 0.0), 1.0); return x * x * (3 - 2 * x); }
-double pymod1(double x) { return x - std::floor(x); }                                   // python: x % 1.0
+double pymod1(double x) { return x - std::floor(x); }                                   // floor-based modulo (like %% in R)
 double clampd(double x, double lo, double hi) { return std::min(std::max(x, lo), hi); }
 constexpr double SLOW = 1.5, PEAK = 1.5;
 

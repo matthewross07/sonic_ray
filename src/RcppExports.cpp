@@ -162,22 +162,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// cpp_oidn_denoise_layer
-NumericVector cpp_oidn_denoise_layer(NumericVector noisy_rgb, NumericVector albedo_rgb, NumericVector normal_xyz, int width, int height, bool demodulate_albedo);
-RcppExport SEXP _sonicray_cpp_oidn_denoise_layer(SEXP noisy_rgbSEXP, SEXP albedo_rgbSEXP, SEXP normal_xyzSEXP, SEXP widthSEXP, SEXP heightSEXP, SEXP demodulate_albedoSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type noisy_rgb(noisy_rgbSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type albedo_rgb(albedo_rgbSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type normal_xyz(normal_xyzSEXP);
-    Rcpp::traits::input_parameter< int >::type width(widthSEXP);
-    Rcpp::traits::input_parameter< int >::type height(heightSEXP);
-    Rcpp::traits::input_parameter< bool >::type demodulate_albedo(demodulate_albedoSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_oidn_denoise_layer(noisy_rgb, albedo_rgb, normal_xyz, width, height, demodulate_albedo));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_sonicray_cpp_comp_stills", (DL_FUNC) &_sonicray_cpp_comp_stills, 7},
@@ -189,7 +173,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_sonicray_cpp_upload_scene", (DL_FUNC) &_sonicray_cpp_upload_scene, 9},
     {"_sonicray_cpp_render_ambient_and_aovs", (DL_FUNC) &_sonicray_cpp_render_ambient_and_aovs, 8},
     {"_sonicray_cpp_render_multilight_batch", (DL_FUNC) &_sonicray_cpp_render_multilight_batch, 10},
-    {"_sonicray_cpp_oidn_denoise_layer", (DL_FUNC) &_sonicray_cpp_oidn_denoise_layer, 6},
     {NULL, NULL, 0}
 };
 

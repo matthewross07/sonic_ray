@@ -37,7 +37,3 @@ cpp_render_multilight_batch <- function(scene_xptr, lookfrom, lookat, fov_deg, w
     .Call(`_sonicray_cpp_render_multilight_batch`, scene_xptr, lookfrom, lookat, fov_deg, width, height, samples, max_bounces, clamp_val, light_pos_r_intensity)
 }
 
-cpp_oidn_denoise_layer <- function(noisy_rgb, albedo_rgb, normal_xyz, width, height, demodulate_albedo = TRUE) {
-    .Call(`_sonicray_cpp_oidn_denoise_layer`, noisy_rgb, albedo_rgb, normal_xyz, width, height, demodulate_albedo)
-}
-

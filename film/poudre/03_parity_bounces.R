@@ -12,7 +12,7 @@ cat(sprintf("%-16s %-8s %7s | %9s | %6s | %9s | %12s\n", "layer", "bounces", "se
 for (b in c(1L, 3L, 6L)) {
   t0 <- Sys.time()
   g <- sr_render_light_layers(gpu, lights, lookfrom = cam$lookfrom, lookat = cam$lookat, fov = cam$fov, width = W, height = H,
-                              amb_spp = 8L, light_spp = 256L, max_bounces = b, clamp = 50, batch_size = 3L, denoise = FALSE)$layers
+                              amb_spp = 8L, light_spp = 256L, max_bounces = b, clamp = 50, batch_size = 3L)$layers
   sec <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
   for (i in seq_len(nrow(lights))) {
     G <- to_arr(g[[lights$name[i]]]); C <- cpu[[lights$name[i]]]

@@ -62,8 +62,7 @@ List cpp_metal_device_info() {
         _["name"] = std::string([[dev name] UTF8String]),
         _["supports_raytracing"] = (bool)[dev supportsRaytracing],
         _["unified_memory"] = (bool)[dev hasUnifiedMemory],
-        _["recommended_max_working_set_gb"] = (double)[dev recommendedMaxWorkingSetSize] / (1024.0 * 1024.0 * 1024.0),
-        _["oidn_available"] = (bool)(SONICRAY_HAVE_OIDN == 1)
+        _["recommended_max_working_set_gb"] = (double)[dev recommendedMaxWorkingSetSize] / (1024.0 * 1024.0 * 1024.0)
     );
 }
 

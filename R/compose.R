@@ -119,7 +119,6 @@ sr_doctor <- function(json = FALSE) {
   add("Metal GPU", isTRUE(info$available), if (isTRUE(info$available)) info$name else "", "needs an Apple Silicon Mac with Metal")
   add("hardware ray tracing", isTRUE(info$supports_raytracing), "", "needs an M-series chip (M1 or later)")
   add("ffmpeg", nzchar(Sys.which("ffmpeg")), unname(Sys.which("ffmpeg")), "brew install ffmpeg")
-  add("Intel OIDN denoiser (optional)", isTRUE(info$oidn_available), "", "brew install open-image-denoise, then reinstall sonicray")
   ok_gpu <- FALSE; detail <- ""
   if (isTRUE(info$available)) tryCatch({
     d <- file.path(tempdir(), "sr_selftest"); dir.create(d, showWarnings = FALSE); W <- 256L; H <- 144L

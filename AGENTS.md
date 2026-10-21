@@ -23,10 +23,10 @@ Do not pick design values silently. Ask these (run `sr_intake()` to print them w
 Show the user a **quick sheet** (`sr_sheet()`) or a draft before any slow render, and get approval before `final`.
 
 ## 2. Decisions I already settled (do not relitigate)
-- Sphere lights only; exact analytic illuminance x stochastic shadow ray; up to 32 lights per GPU pass; OIDN denoise is optional and on by default when installed.
+- Sphere lights only; exact analytic illuminance x stochastic shadow ray; up to 32 lights per GPU pass.
 - Layers are `float32` RGB `.f32` files, row-major, one file per light. Do not change the format.
 - Compositing happens on the GPU in one C++ process; the CPU only builds a `FrameSpec` per frame (`src/comp_types.h`). **To change the look of a film, edit or write a story** (`src/comp_stories.cpp`), not the compositor (`src/comp_engine.cpp`).
-- Presets (`sr_presets()`): draft 32 samples per pixel, review 128, final 256. Do not denoise above about 32 spp: raw layers are more accurate (see `docs/HOW_IT_WORKS.md`).
+- Presets (`sr_presets()`): draft 32 samples per pixel, review 128, final 256. There is no denoiser: raw layers beat denoised ones from about 32 spp up (see `docs/HOW_IT_WORKS.md`).
 - Encoding: Apple hardware HEVC for draft and review (about 40 s for the Poudre film, big files); x264 `slow` crf 13 for final (about 60 s, small files).
 - 8-bit textures decode as value^2.2 (sRGB). Decode position maps with ^(1/2.2).
 - No text is ever drawn into a film. Synthetic data must be labelled synthetic wherever it is shown.

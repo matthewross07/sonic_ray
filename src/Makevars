@@ -1,18 +1,8 @@
 # ==============================================================================
 # sonicray/src/Makevars
-# Compiles Objective-C++ (.mm) against Apple's Metal & Foundation frameworks
-# using standard macOS Command Line Tools (no full Xcode.app or xcrun metal needed).
-# Automatically links Intel Open Image Denoise (libOpenImageDenoise) if installed.
+# Compiles Objective-C++ against Apple's Metal & Foundation frameworks with the standard macOS Command Line Tools
+# (no full Xcode.app, no xcrun metal, and no third-party libraries: the Metal shaders compile at run time).
 # ==============================================================================
 CXX_STD = CXX17
-
-# NB: `brew --prefix <formula>` prints a path even when the formula is NOT installed, so check the header really exists.
-OIDN_PREFIX := $(shell brew --prefix open-image-denoise 2>/dev/null)
-OIDN_HEADER := $(wildcard $(OIDN_PREFIX)/include/OpenImageDenoise/oidn.h)
-ifneq ($(OIDN_HEADER),)
-  PKG_CPPFLAGS = -ObjC++ -fobjc-arc -DSONICRAY_HAVE_OIDN=1 -I"$(OIDN_PREFIX)/include"
-  PKG_LIBS = -framework Metal -framework Foundation -framework CoreGraphics -L"$(OIDN_PREFIX)/lib" -lOpenImageDenoise
-else
-  PKG_CPPFLAGS = -ObjC++ -fobjc-arc -DSONICRAY_HAVE_OIDN=0
-  PKG_LIBS = -framework Metal -framework Foundation -framework CoreGraphics
-endif
+PKG_CPPFLAGS = -ObjC++ -fobjc-arc
+PKG_LIBS = -framework Metal -framework Foundation -framework CoreGraphics

@@ -22,7 +22,7 @@ gpu  <- sr_upload_mesh(mesh, readPNG(file.path(CACHE, "albedo.png"))[, , 1:3]^2.
 for (b in c(1L, 2L)) {                                    # bounces: 1 = direct only, 2 = direct + 1 indirect (current kernel)
   t0 <- Sys.time()
   g <- sr_render_light_layers(gpu, lights, lookfrom = cam$lookfrom, lookat = cam$lookat, fov = cam$fov, width = W, height = H,
-                              amb_spp = 8L, light_spp = 256L, max_bounces = b, batch_size = 3L, denoise = FALSE)
+                              amb_spp = 8L, light_spp = 256L, max_bounces = b, batch_size = 3L)
   cat(sprintf("GPU  max_bounces=%d: 3 layers @1080p 256 spp in %.2f s\n", b, as.numeric(difftime(Sys.time(), t0, units = "secs"))))
   assign(paste0("gpu_b", b), g$layers)
 }
