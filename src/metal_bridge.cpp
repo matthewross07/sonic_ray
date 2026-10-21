@@ -86,7 +86,10 @@ SEXP cpp_upload_scene(
 
     NSError* err = nil;
     MTLCompileOptions* opts = [[MTLCompileOptions alloc] init];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"      // fastMathEnabled is only used on macOS < 15
     if (@available(macOS 15.0, *)) { opts.mathMode = MTLMathModeFast; } else { opts.fastMathEnabled = YES; }
+#pragma clang diagnostic pop
     NSString* src_ns = [NSString stringWithUTF8String:metal_shader_src.c_str()];
     id<MTLLibrary> lib = [dev newLibraryWithSource:src_ns options:opts error:&err];
     if (!lib) {

@@ -16,7 +16,7 @@
 #' @param max_bounces Surface vertices per path with next-event estimation (1 = direct light only, 4 = three indirect bounces).
 #' @param clamp Per-sample brightness clamp (fireflies); the CPU film pipeline used 12, which also clips genuine near-light highlights.
 #' @param batch_size Number of lights evaluated simultaneously per BVH traversal (1..32, default 16).
-#' @param denoise Logical; run albedo-demodulated Intel OIDN on each layer (default TRUE).
+#' @param denoise Logical; run albedo-demodulated Intel OIDN on each layer (default FALSE). In our tests raw layers were more accurate than denoised ones from about 32 samples per pixel up; OIDN only helps below that.
 #' @param out_dir Optional directory to write `.f32` layer files compatible with `02_compose_video.py`.
 #' @export
 sr_render_light_layers <- function(
@@ -32,7 +32,7 @@ sr_render_light_layers <- function(
   max_bounces = 4L,
   clamp      = 50,
   batch_size = 16L,
-  denoise    = TRUE,
+  denoise    = FALSE,
   out_dir    = NULL
 ) {
   stopifnot(inherits(gpu_scene, "sonicray_gpu_scene"))
@@ -121,12 +121,17 @@ sr_render_light_layers <- function(
 }
 
 #' Denoise a single HxWx3 layer using first-hit Albedo and Normal AOVs via Intel OIDN
+#' @param noisy_rgb,albedo_rgb,normal_xyz numeric vectors (width x height x 3, interleaved) for the noisy layer and its first-hit albedo and normal.
+#' @param width,height image size in pixels. @param demodulate_albedo divide by the albedo before denoising and multiply back after (keeps texture detail).
+#' @return the denoised layer as a numeric vector.
 #' @export
 sr_denoise_layer <- function(noisy_rgb, albedo_rgb, normal_xyz, width, height, demodulate_albedo = TRUE) {
   cpp_oidn_denoise_layer(noisy_rgb, albedo_rgb, normal_xyz, width, height, demodulate_albedo)
 }
 
 #' Compare a `sonicray` Metal GPU layer against a `rayrender` CPU reference layer
+#' @param gpu_layer,cpu_layer numeric vectors of the same length.
+#' @return a list with `rmse`, `rel_mean_diff`, `cosine_similarity` and `passed`.
 #' @export
 sr_parity_check <- function(gpu_layer, cpu_layer) {
   diff <- as.numeric(gpu_layer) - as.numeric(cpu_layer)

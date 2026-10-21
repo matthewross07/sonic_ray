@@ -25,7 +25,7 @@ resize_mat <- function(m, nr, nc) {
 fbm_noise <- function(n, beta) {
   k <- c(0:(n / 2), -(n / 2 - 1):-1)
   K <- sqrt(outer(k^2, k^2, "+")); K[1, 1] <- 1
-  z <- Re(fft(fft(matrix(stats::rnorm(n * n), n, n)) * K^(-beta / 2), inverse = TRUE))
+  z <- Re(stats::fft(stats::fft(matrix(stats::rnorm(n * n), n, n)) * K^(-beta / 2), inverse = TRUE))
   (z - min(z)) / (max(z) - min(z))
 }
 

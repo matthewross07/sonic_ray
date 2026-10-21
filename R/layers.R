@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2026 Matthew Ross. Written with AI assistance (Claude Sonnet 5.5); see AI_ATTRIBUTION.md.
-# Helpers that connect the GPU path tracer (R) to the GPU compositor (Python): camera projection, texture sampling, layer files.
+# Helpers that connect the GPU path tracer (R) to the GPU compositor (C++): camera projection, texture sampling, layer files.
 
 #' Project world points to pixel coordinates (same convention as the compositor)
 #' @param xyz n x 3 matrix of scene coordinates (km). @param lookfrom,lookat camera. @param fov vertical field of view (degrees).
@@ -17,6 +17,8 @@ sr_project <- function(xyz, lookfrom, lookat, fov, width, height) {
 }
 
 #' Bilinear sample of a matrix at texture coordinates (v = 1 is the top row, like the mesh uvs)
+#' @param m numeric matrix (rows = image rows). @param u,v texture coordinates in 0..1 (vectors of equal length).
+#' @return numeric vector of the sampled values.
 #' @export
 sr_sample_texture <- function(m, u, v) {
   h <- nrow(m); w <- ncol(m)
@@ -24,48 +26,6 @@ sr_sample_texture <- function(m, u, v) {
   x0 <- floor(x); y0 <- floor(y); fx <- x - x0; fy <- y - y0
   (1 - fy) * ((1 - fx) * m[cbind(y0 + 1, x0 + 1)] + fx * m[cbind(y0 + 1, x0 + 2)]) +
     fy * ((1 - fx) * m[cbind(y0 + 2, x0 + 1)] + fx * m[cbind(y0 + 2, x0 + 2)])
-}
-
-#' Path to the `sonicray` command-line tool (Python GPU compositor)
-#' @export
-sr_cli <- function() {
-  p <- system.file("bin", "sonicray", package = "sonicray")
-  if (!nzchar(p)) p <- normalizePath(file.path("inst", "bin", "sonicray"), mustWork = FALSE)
-  if (!file.exists(p)) stop("cannot find the sonicray command line tool; is the package installed?")
-  p
-}
-
-#' Check this Mac and print exact fixes (R side + Python/ffmpeg/Metal side)
-#' @param json if TRUE, print machine-readable JSON (for AI assistants).
-#' @return invisibly, TRUE if everything needed is in place.
-#' @export
-sr_doctor <- function(json = FALSE) {
-  info <- tryCatch(sr_device_info(), error = function(e) NULL)
-  r_ok <- !is.null(info) && isTRUE(info$available)
-  if (!json) {
-    cat("R side\n")
-    cat(sprintf("  %s Metal GPU: %s\n", if (r_ok) "ok  " else "FAIL", if (r_ok) paste(info$name, if (isTRUE(info$supports_raytracing)) "(hardware ray tracing)" else "(no ray tracing)") else "not available (needs an Apple Silicon Mac)"))
-    cat(sprintf("  %s Intel OIDN denoiser: %s\n", if (isTRUE(info$oidn_available)) "ok  " else "info", if (isTRUE(info$oidn_available)) "found" else "optional; brew install open-image-denoise, then reinstall sonicray"))
-    cat("Python / GPU compositor side\n")
-  }
-  rc <- system2(sr_cli(), c("doctor", if (json) "--json"))
-  invisible(r_ok && rc == 0)
-}
-
-#' Print the questions an assistant should ask the user before rendering (colours, quality, speed, ...)
-#' @param json machine-readable output.
-#' @export
-sr_intake <- function(json = FALSE) invisible(system2(sr_cli(), c("intake", if (json) "--json")))
-
-#' Compose a film from light layers on the GPU
-#' @param layers directory with `scene_meta.json` and `*.f32` layers. @param out output .mp4 (use a NEW name).
-#' @param story "network" (data-driven, see docs/BRING_YOUR_OWN_DATA.md) or "poudre". @param quality "draft", "review" or "final".
-#' @param ... extra command-line flags, e.g. `"--t0", "0", "--t1", "5"`.
-#' @export
-sr_compose <- function(layers, out, story = "network", quality = "draft", ...) {
-  rc <- system2(sr_cli(), c("compose", "--layers", shQuote(path.expand(layers)), "--story", story, "--out", shQuote(path.expand(out)), "--quality", quality, ...))
-  if (rc != 0) stop("sonicray compose failed; run sr_doctor()")
-  invisible(path.expand(out))
 }
 
 #' Write the scene description the compositor needs (width, height, camera, sensors with screen positions)

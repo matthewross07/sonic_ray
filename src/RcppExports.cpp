@@ -10,6 +10,79 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// cpp_comp_stills
+List cpp_comp_stills(std::string layers_dir, std::string metal_src, List scene, List look, std::string story, List data, NumericVector times);
+RcppExport SEXP _sonicray_cpp_comp_stills(SEXP layers_dirSEXP, SEXP metal_srcSEXP, SEXP sceneSEXP, SEXP lookSEXP, SEXP storySEXP, SEXP dataSEXP, SEXP timesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type layers_dir(layers_dirSEXP);
+    Rcpp::traits::input_parameter< std::string >::type metal_src(metal_srcSEXP);
+    Rcpp::traits::input_parameter< List >::type scene(sceneSEXP);
+    Rcpp::traits::input_parameter< List >::type look(lookSEXP);
+    Rcpp::traits::input_parameter< std::string >::type story(storySEXP);
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type times(timesSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_comp_stills(layers_dir, metal_src, scene, look, story, data, times));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_comp_story_length
+double cpp_comp_story_length(std::string layers_dir, std::string metal_src, List scene, List look, std::string story, List data);
+RcppExport SEXP _sonicray_cpp_comp_story_length(SEXP layers_dirSEXP, SEXP metal_srcSEXP, SEXP sceneSEXP, SEXP lookSEXP, SEXP storySEXP, SEXP dataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type layers_dir(layers_dirSEXP);
+    Rcpp::traits::input_parameter< std::string >::type metal_src(metal_srcSEXP);
+    Rcpp::traits::input_parameter< List >::type scene(sceneSEXP);
+    Rcpp::traits::input_parameter< List >::type look(lookSEXP);
+    Rcpp::traits::input_parameter< std::string >::type story(storySEXP);
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_comp_story_length(layers_dir, metal_src, scene, look, story, data));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_comp_film
+List cpp_comp_film(std::string layers_dir, std::string metal_src, List scene, List look, std::string story, List data, std::string out_path, int fps, double t0, double t1, List enc, int threads, bool progress);
+RcppExport SEXP _sonicray_cpp_comp_film(SEXP layers_dirSEXP, SEXP metal_srcSEXP, SEXP sceneSEXP, SEXP lookSEXP, SEXP storySEXP, SEXP dataSEXP, SEXP out_pathSEXP, SEXP fpsSEXP, SEXP t0SEXP, SEXP t1SEXP, SEXP encSEXP, SEXP threadsSEXP, SEXP progressSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type layers_dir(layers_dirSEXP);
+    Rcpp::traits::input_parameter< std::string >::type metal_src(metal_srcSEXP);
+    Rcpp::traits::input_parameter< List >::type scene(sceneSEXP);
+    Rcpp::traits::input_parameter< List >::type look(lookSEXP);
+    Rcpp::traits::input_parameter< std::string >::type story(storySEXP);
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< std::string >::type out_path(out_pathSEXP);
+    Rcpp::traits::input_parameter< int >::type fps(fpsSEXP);
+    Rcpp::traits::input_parameter< double >::type t0(t0SEXP);
+    Rcpp::traits::input_parameter< double >::type t1(t1SEXP);
+    Rcpp::traits::input_parameter< List >::type enc(encSEXP);
+    Rcpp::traits::input_parameter< int >::type threads(threadsSEXP);
+    Rcpp::traits::input_parameter< bool >::type progress(progressSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_comp_film(layers_dir, metal_src, scene, look, story, data, out_path, fps, t0, t1, enc, threads, progress));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_comp_describe
+List cpp_comp_describe(std::string layers_dir, std::string metal_src, List scene, List look, std::string story, List data, double t);
+RcppExport SEXP _sonicray_cpp_comp_describe(SEXP layers_dirSEXP, SEXP metal_srcSEXP, SEXP sceneSEXP, SEXP lookSEXP, SEXP storySEXP, SEXP dataSEXP, SEXP tSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type layers_dir(layers_dirSEXP);
+    Rcpp::traits::input_parameter< std::string >::type metal_src(metal_srcSEXP);
+    Rcpp::traits::input_parameter< List >::type scene(sceneSEXP);
+    Rcpp::traits::input_parameter< List >::type look(lookSEXP);
+    Rcpp::traits::input_parameter< std::string >::type story(storySEXP);
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< double >::type t(tSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_comp_describe(layers_dir, metal_src, scene, look, story, data, t));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpp_vertex_normals
 NumericMatrix cpp_vertex_normals(NumericMatrix vertices, IntegerMatrix indices);
 RcppExport SEXP _sonicray_cpp_vertex_normals(SEXP verticesSEXP, SEXP indicesSEXP) {
@@ -107,6 +180,10 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_sonicray_cpp_comp_stills", (DL_FUNC) &_sonicray_cpp_comp_stills, 7},
+    {"_sonicray_cpp_comp_story_length", (DL_FUNC) &_sonicray_cpp_comp_story_length, 6},
+    {"_sonicray_cpp_comp_film", (DL_FUNC) &_sonicray_cpp_comp_film, 13},
+    {"_sonicray_cpp_comp_describe", (DL_FUNC) &_sonicray_cpp_comp_describe, 7},
     {"_sonicray_cpp_vertex_normals", (DL_FUNC) &_sonicray_cpp_vertex_normals, 2},
     {"_sonicray_cpp_metal_device_info", (DL_FUNC) &_sonicray_cpp_metal_device_info, 0},
     {"_sonicray_cpp_upload_scene", (DL_FUNC) &_sonicray_cpp_upload_scene, 9},

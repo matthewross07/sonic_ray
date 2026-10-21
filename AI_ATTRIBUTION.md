@@ -12,7 +12,7 @@
 
 **What we verified, and how.** Everything this repository calls "measured" ran on one machine (Apple M4 Pro, macOS 15.7) during development. Claude timed the 162 layer renders and the full film composites,
 compared GPU frames with the CPU compositor using `tools/compare_reference.py`, and tested the install into a fresh R library.
-**What we did not verify.** Other Macs, other macOS versions, a machine without the Python packages pre-installed, the Intel OIDN path on other chips, and the long-term behaviour of the Metal driver.
+**What we did not verify.** Other Macs, other macOS versions, the Intel OIDN path on other chips, and the long-term behaviour of the Metal driver.
 Where a number is an estimate, the text says so. Please report problems as issues.
 
 **Prior work.** I follow the ideas of Tyler Morgan-Wall's rayshader and rayrender (see ACKNOWLEDGEMENTS.md). This repository includes no code from those projects.

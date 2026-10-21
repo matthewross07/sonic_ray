@@ -6,5 +6,6 @@
 \arguments{
 \item{H}{numeric matrix (nr x nc) of elevations in metres.}
 \item{xr,zr}{length-2 ranges of the x and z axes (km).}
-\item{y0}{elevation (m) mapped to y = 0.   @param vexag vertical exaggeration.}
+\item{y0}{elevation (m) mapped to y = 0.}
+\item{vexag}{vertical exaggeration.}
 }

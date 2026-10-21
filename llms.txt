@@ -1,9 +1,9 @@
 # sonicray
-> Metal GPU path tracing + GPU compositor for light-layer films (Apple Silicon, R + Python). GPL-3. I built it with Claude Sonnet 5.5 (effort high); I am inspired by Tyler Morgan-Wall's rayrender and rayshader.
+> Metal GPU path tracing + GPU compositor for light-layer films (Apple Silicon, R + C++ + Metal). GPL-3. I built it with Claude Sonnet 5.5 (effort high); I am inspired by Tyler Morgan-Wall's rayrender and rayshader.
 
 Start here, in this order:
 - [AGENTS.md](AGENTS.md): briefing for AI assistants: questions to ask the user, settled decisions, pitfalls, commands
 - [docs/BRING_YOUR_OWN_DATA.md](docs/BRING_YOUR_OWN_DATA.md): the bundled demo is SYNTHETIC; how to use real sensors
 - [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md): design, measurements, known gaps
 - [AI_ATTRIBUTION.md](AI_ATTRIBUTION.md): what AI did and what was verified
-Commands: `sr_doctor()`, `sr_demo()`, `sr_intake()` (R); `sonicray doctor|intake|sheet|compose|bench` (CLI at inst/bin/sonicray).
+Commands (R): `sr_doctor()`, `sr_intake()`, `sr_demo()`, `sr_sheet()`, `sr_still()`, `sr_compose()`, `sr_presets()`.

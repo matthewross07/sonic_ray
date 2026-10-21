@@ -12,8 +12,8 @@
 #' @export
 sr_demo <- function(out_dir = "sonicray_demo", quality = c("draft", "review", "final"), compose = TRUE, seed = 7L) {
   quality <- match.arg(quality)
-  P <- list(draft = list(w = 960L, h = 540L, amb = 64L, lig = 32L), review = list(w = 1280L, h = 720L, amb = 256L, lig = 128L),
-            final = list(w = 1920L, h = 1080L, amb = 1024L, lig = 512L))[[quality]]
+  pr <- sr_presets()[[quality]]
+  P <- list(w = pr$width, h = pr$height, amb = pr$amb_spp, lig = pr$light_spp)
   if (!sr_metal_available()) stop("needs an Apple Silicon Mac with Metal ray tracing; run sr_doctor()")
   dir <- path.expand(out_dir); layers <- file.path(dir, paste0("layers_", P$w, "x", P$h)); dir.create(layers, recursive = TRUE, showWarnings = FALSE)
   tm <- function(label, expr) { t0 <- Sys.time(); v <- force(expr); message(sprintf("[sonicray demo] %-34s %6.1f s", label, as.numeric(difftime(Sys.time(), t0, units = "secs")))); v }
@@ -30,7 +30,7 @@ sr_demo <- function(out_dir = "sonicray_demo", quality = c("draft", "review", "f
   }
   lights <- do.call(rbind, L)
   res <- tm(sprintf("%d light layers", nrow(lights)), sr_render_light_layers(gpu, lights, lookfrom = d$cam$lookfrom, lookat = d$cam$lookat, fov = d$cam$fov,
-              width = P$w, height = P$h, amb_spp = P$amb, light_spp = P$lig, max_bounces = 4L, clamp = 50, batch_size = 32L, denoise = isTRUE(sr_device_info()$oidn_available), out_dir = layers))
+              width = P$w, height = P$h, amb_spp = P$amb, light_spp = P$lig, max_bounces = 4L, clamp = 50, batch_size = 32L, denoise = FALSE, out_dir = layers))
   # river mask (R = river, G = all water) and a sparse starfield, written in the compositor's layer format
   uv <- matrix(res$aovs$uv, ncol = 2, byrow = TRUE); mask <- as.numeric(res$aovs$mask)
   riv <- cbind(sr_sample_texture(d$river, uv[, 1], uv[, 2]), sr_sample_texture(d$water, uv[, 1], uv[, 2]), 0) * mask

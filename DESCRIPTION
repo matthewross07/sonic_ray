@@ -15,11 +15,12 @@ URL: https://github.com/matthewross07/sonic_ray
 BugReports: https://github.com/matthewross07/sonic_ray/issues
 Encoding: UTF-8
 OS_type: unix
-SystemRequirements: macOS >= 14 on Apple Silicon (Metal 3), Xcode Command Line Tools, Python 3 with numpy and Pillow, ffmpeg; optional Intel Open Image Denoise
+SystemRequirements: GNU make, macOS >= 14 on Apple Silicon (Metal 3), Xcode Command Line Tools, ffmpeg; optional Intel Open Image Denoise
 Imports:
     Rcpp (>= 1.0.12),
     jsonlite,
-    png
+    png,
+    utils
 LinkingTo:
     Rcpp
 Suggests:

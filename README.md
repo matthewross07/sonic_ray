@@ -14,8 +14,8 @@ Render each light once on the GPU, then re-time, re-colour and re-cut the film i
 
 ```bash
 xcode-select --install                      # compiler (skip if already installed)
-brew install ffmpeg open-image-denoise      # video encoder; optional denoiser
-python3 -m pip install numpy pillow
+brew install ffmpeg                         # video encoder
+brew install open-image-denoise             # optional denoiser (not needed for most work)
 ```
 ```r
 install.packages("remotes")
@@ -23,18 +23,18 @@ remotes::install_github("matthewross07/sonic_ray")
 ```
 Or run `./install.sh` from a clone, which does all of the above and then `sr_doctor()`.
 
-## Try it (about a minute, no data needed)
+## Try it (a few seconds, no data needed)
 
 ```r
 library(sonicray)
 sr_doctor()                    # checks the Mac and prints the exact fix for anything missing
-sr_demo("my_demo")             # SYNTHETIC data -> GPU light layers -> GPU compositor -> my_demo/demo_draft.mp4
+sr_demo("my_demo")             # SYNTHETIC data -> GPU light layers -> GPU compositor -> my_demo/demo_draft.mp4 (about 3 s)
 ```
 **The demo data are synthetic.** I invented the river valley, the sensors and the "samples". They show the pipeline and file formats, not real measurements.
 To use real sensors and a real elevation model, see [docs/BRING_YOUR_OWN_DATA.md](docs/BRING_YOUR_OWN_DATA.md).
 
 <p align="center"><img src="docs/media/demo_synthetic.webp" width="800" alt="Synthetic demo: sensors light up along an invented river valley and fire a firework for each sample"></p>
-<p align="center"><sub><b>Synthetic data.</b> Invented terrain, sensors and samples from <code>sr_demo()</code> (about 20 s on an M4 Pro at review quality).
+<p align="center"><sub><b>Synthetic data.</b> Invented terrain, sensors and samples from <code>sr_demo()</code> (about 5 s on an M4 Pro at review quality).
 <a href="docs/media/demo_synthetic.mp4">Full-quality mp4</a> · <a href="docs/media/demo_quick_sheet.png">quick sheet</a></sub></p>
 
 ## A real-data example
@@ -47,20 +47,21 @@ I do not include the input data here, so I built the synthetic demo above for an
 
 I measured the Cache la Poudre film (1080p30, 130 s, real data, the film that motivated this package) on an Apple M4 Pro:
 
-| Stage | CPU (rayrender + Python) | sonicray (GPU) |
+| Stage | CPU workflow (rayrender + Python) | sonicray |
 |---|---|---|
-| 162 light layers | 39.3 min | **64.5 s** |
-| Composite 3,900 frames | 15.7 min (measured, partly contended; ~10 min unloaded) | **95 s** (81 s with x264 `fast`) |
-| End to end | ~49-55 min | **~2.7 min (about 18-20x)** |
+| 146 light layers | 39.3 min | **18 s** (128 samples per pixel; 58 s at 512) |
+| Composite 3,900 frames | 15.7 min (measured, partly contended; about 10 min unloaded) | **61 s** with x264, **40 s** with the Apple hardware encoder |
+| End to end | about 49-55 min | **about 65-90 s (35-50x)** |
 
 *The CPU numbers measure my own earlier workflow (one render per light, 2x supersampling, adaptive sampling, scene rebuilt on every call). They do not benchmark rayrender, a general-purpose renderer.*
 
-The synthetic demo at draft quality (960x540, 18 s): layers 7.8 s, composite 2.3 s. Method, caveats and parity numbers: [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
+The synthetic demo takes 2.9 s end to end at draft quality (960x540) and 5.5 s at review quality (1280x720). Everything runs in one C++ process: no Python, no worker processes.
+Method, what I tried that did not help, and parity numbers: [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
 
 ## Music (optional)
 
 Soundtracks are **not part of the package**. I made the Poudre film's score with [Sonic Pi](https://sonic-pi.net) (a free, separate app): I asked an AI assistant to write a script locked to
-the film's event times, recorded it, and muxed the `.wav` in with `sonicray compose --audio score.wav`. [docs/MUSIC_WITH_SONIC_PI.md](docs/MUSIC_WITH_SONIC_PI.md) has the recipe and a prompt you can give your assistant.
+the film's event times, recorded it, and muxed the `.wav` in with `sr_compose(..., audio = "score.wav")`. [docs/MUSIC_WITH_SONIC_PI.md](docs/MUSIC_WITH_SONIC_PI.md) has the recipe and a prompt you can give your assistant.
 
 ## Using it with an AI assistant
 

@@ -6,10 +6,10 @@ Cache la Poudre film:
 1. Install [Sonic Pi](https://sonic-pi.net) (a free, separate app) so you can record audio from code.
 2. Give your AI assistant the film's event data (`events.csv`, `sensors.csv`, `story.json`) and ask it to write a Sonic Pi script whose notes land on those times.
 3. Record the script to a `.wav` in Sonic Pi, then mux it in:
-   ```bash
-   inst/bin/sonicray compose --layers LAYERS --story network --out film.mp4 --quality final --audio score.wav --audio-offset 0.64
+   ```r
+   sr_compose("LAYERS", "film.mp4", story = "network", quality = "final", audio = "score.wav", audio_offset = 0.64)
    ```
-   `--audio-offset` trims that many seconds of lead-in from the start of the recording. Sonic Pi usually starts a little late, so find your own value by listening for the first note.
+   `audio_offset` trims that many seconds of lead-in from the start of the recording. Sonic Pi usually starts a little late, so find your own value by listening for the first note.
 
 ## A prompt that works
 

@@ -29,13 +29,14 @@ inline float rnd01(uint v) { return float(pcg(v) >> 8) * (1.0f / 16777216.0f); }
 
 // ----------------------------------------------------------------------------------------------- layer accumulation
 // out (+)= sum_k layer_k * w_k  (per-channel weights; mode 0 = rgb, 1 = broadcast red, 2 = broadcast green, -1 = unused)
-struct AxpyP { int W; int H; int init; int mode[8]; float w[24]; };
+struct AxpyP { int W; int H; int init; int y0; int mode[8]; float w[24]; };      // y0: first row to process (terrain crop)
 kernel void axpy8(device pf3* out [[buffer(0)]],
                   device const pf3* l0 [[buffer(1)]], device const pf3* l1 [[buffer(2)]],
                   device const pf3* l2 [[buffer(3)]], device const pf3* l3 [[buffer(4)]],
                   device const pf3* l4 [[buffer(5)]], device const pf3* l5 [[buffer(6)]],
                   device const pf3* l6 [[buffer(7)]], device const pf3* l7 [[buffer(8)]],
-                  constant AxpyP& p [[buffer(9)]], uint2 g [[thread_position_in_grid]]) {
+                  constant AxpyP& p [[buffer(9)]], uint2 g0 [[thread_position_in_grid]]) {
+    uint2 g = uint2(g0.x, g0.y + (uint)p.y0);
     if ((int)g.x >= p.W || (int)g.y >= p.H) return;
     uint i = g.y * (uint)p.W + g.x;
     float3 acc = p.init != 0 ? float3(0.0f) : float3(out[i]);
@@ -51,10 +52,11 @@ kernel void axpy8(device pf3* out [[buffer(0)]],
 }
 
 // ----------------------------------------------------------------------------------------------- satellite scan
-struct SatP { int W; int H; int nev; int has_sun1; float t; float half_w; float dur; float tau; float ts[4]; float uc[4]; float col[3]; };
+struct SatP { int W; int H; int nev; int has_sun1; int y0; float t; float half_w; float dur; float tau; float ts[4]; float uc[4]; float col[3]; };
 kernel void sat_add(device pf3* lin [[buffer(0)]], device const pf3* amb [[buffer(1)]], device const pf3* sun1 [[buffer(2)]],
                     device const float* uu [[buffer(3)]], device const float* vv [[buffer(4)]], device const pf3* riv [[buffer(5)]],
-                    constant SatP& p [[buffer(6)]], uint2 g [[thread_position_in_grid]]) {
+                    constant SatP& p [[buffer(6)]], uint2 g0 [[thread_position_in_grid]]) {
+    uint2 g = uint2(g0.x, g0.y + (uint)p.y0);
     if ((int)g.x >= p.W || (int)g.y >= p.H) return;
     uint i = g.y * (uint)p.W + g.x;
     float u = uu[i], v = clamp(vv[i], 0.0f, 1.0f), lvl = 0.0f;
@@ -75,16 +77,19 @@ kernel void sat_add(device pf3* lin [[buffer(0)]], device const pf3* amb [[buffe
 }
 
 // ----------------------------------------------------------------------------------------------- halo around lit rivers
+struct Dims { int W; int H; int y0; };
 kernel void lum_mean(device const pf3* bl [[buffer(0)]], device float* lum [[buffer(1)]],
-                     constant int2& d [[buffer(2)]], uint2 g [[thread_position_in_grid]]) {
-    if ((int)g.x >= d.x || (int)g.y >= d.y) return;
-    uint i = g.y * (uint)d.x + g.x;
+                     constant Dims& d [[buffer(2)]], uint2 g0 [[thread_position_in_grid]]) {
+    uint2 g = uint2(g0.x, g0.y + (uint)d.y0);
+    if ((int)g.x >= d.W || (int)g.y >= d.H) return;
+    uint i = g.y * (uint)d.W + g.x;
     float3 v = float3(bl[i]);
     lum[i] = (v.x + v.y + v.z) / 3.0f;
 }
-struct HaloP { int W; int H; float c1; float c2; float a; float b; float col[3]; };
+struct HaloP { int W; int H; int y0; float c1; float c2; float a; float b; float col[3]; };
 kernel void halo_add(device pf3* lin [[buffer(0)]], device const float* g1 [[buffer(1)]], device const float* g2 [[buffer(2)]],
-                     device const pf3* riv [[buffer(3)]], constant HaloP& p [[buffer(4)]], uint2 g [[thread_position_in_grid]]) {
+                     device const pf3* riv [[buffer(3)]], constant HaloP& p [[buffer(4)]], uint2 g0 [[thread_position_in_grid]]) {
+    uint2 g = uint2(g0.x, g0.y + (uint)p.y0);
     if ((int)g.x >= p.W || (int)g.y >= p.H) return;
     uint i = g.y * (uint)p.W + g.x;
     float halo = clamp(g1[i] * p.c1 + g2[i] * p.c2, 0.0f, 1.0f);
@@ -95,10 +100,11 @@ kernel void halo_add(device pf3* lin [[buffer(0)]], device const float* g1 [[buf
 // ----------------------------------------------------------------------------------------------- tone map (+bloom source)
 kernel void tonemap(device const pf3* lin [[buffer(0)]], device const float* m [[buffer(1)]],
                     device pf3* terrain [[buffer(2)]], device pf3* bright [[buffer(3)]], device atomic_uint* bmax [[buffer(4)]],
-                    constant int2& d [[buffer(5)]], uint2 g [[thread_position_in_grid]], uint lane [[thread_index_in_simdgroup]]) {
+                    constant Dims& d [[buffer(5)]], uint2 g0 [[thread_position_in_grid]], uint lane [[thread_index_in_simdgroup]]) {
     float local = 0.0f;
-    if ((int)g.x < d.x && (int)g.y < d.y) {
-        uint i = g.y * (uint)d.x + g.x;
+    uint2 g = uint2(g0.x, g0.y + (uint)d.y0);
+    if ((int)g.x < d.W && (int)g.y < d.H) {
+        uint i = g.y * (uint)d.W + g.x;
         float3 l = max(float3(lin[i]), 0.0f);
         float mx = max(l.x, max(l.y, l.z));
         float mc = mx > 0.55f ? 0.55f + (mx - 0.55f) / (1.0f + 1.6f * (mx - 0.55f)) : mx;
@@ -112,9 +118,10 @@ kernel void tonemap(device const pf3* lin [[buffer(0)]], device const float* m [
     float sm = simd_max(local);
     if (lane == 0 && sm > 0.0f) atomic_fetch_max_explicit(bmax, as_type<uint>(sm), memory_order_relaxed);
 }
-struct SharpP { int W; int H; float amount; };
+struct SharpP { int W; int H; int y0; float amount; };
 kernel void sharpen_comb(device pf3* terrain [[buffer(0)]], device const pf3* blurred [[buffer(1)]], constant SharpP& p [[buffer(2)]],
-                         uint2 g [[thread_position_in_grid]]) {
+                         uint2 g0 [[thread_position_in_grid]]) {
+    uint2 g = uint2(g0.x, g0.y + (uint)p.y0);
     if ((int)g.x >= p.W || (int)g.y >= p.H) return;
     uint i = g.y * (uint)p.W + g.x;
     float3 t = float3(terrain[i]);
@@ -234,16 +241,16 @@ kernel void sky_render(device const pf3* sa [[buffer(0)]], device const pf3* sb 
 
 // ----------------------------------------------------------------------------------------------- firework sparks
 // Host-generated primitives (filaments = thick lines, star heads = ellipses), painted per plane in draw order, binned into 32x32
-// tiles.  Each output pixel takes 2x2 sub-samples (the CPU path drew at 2x resolution and box-filtered), five planes
+// tiles (the tile size matches the 16x16 threadgroup).  Each output pixel takes 2x2 sub-samples (the CPU path drew at 2x resolution and box-filtered), five planes
 // (toc, chla, alk, shimmer, white) -> coloured, summed, scaled by 0.92.
 struct Prim { float a; float b; float c; float d; float w; float fill; int plane; int kind; };
-struct SparkP { int W; int H; int ntx; float col[15]; };
+struct SparkP { int W; int H; int ntx; int tile; float col[15]; };
 kernel void spark_raster(device const Prim* prims [[buffer(0)]], device const uint* tile_off [[buffer(1)]], device const uint* tile_idx [[buffer(2)]],
                          device pf3* ov [[buffer(3)]], device atomic_uint* omax [[buffer(4)]], constant SparkP& p [[buffer(5)]],
                          uint2 g [[thread_position_in_grid]], uint lane [[thread_index_in_simdgroup]]) {
     float local = 0.0f;
     if ((int)g.x < p.W && (int)g.y < p.H) {
-        uint tile = (g.y / 32u) * (uint)p.ntx + (g.x / 32u);
+        uint tile = (g.y / (uint)p.tile) * (uint)p.ntx + (g.x / (uint)p.tile);
         float4 v[5] = {float4(0.0f), float4(0.0f), float4(0.0f), float4(0.0f), float4(0.0f)};
         float2 q[4];
         for (int s = 0; s < 4; ++s) q[s] = float2((float)(g.x * 2u + (uint)(s & 1)), (float)(g.y * 2u + (uint)(s >> 1)));
