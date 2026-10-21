@@ -57,6 +57,11 @@ I measured the Cache la Poudre film (1080p30, 130 s, real data, the film that mo
 The synthetic demo takes 2.9 s end to end at draft quality (960x540), 5.8 s at review (1280x720) and 17 s at final (1920x1080). Everything runs in one C++ process, in R and C++ only: no Python and no third-party libraries beyond Apple's own.
 Method, what I tried that did not help, and parity numbers: [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
 
+## Water (only when the water is the subject)
+
+For films about the water itself (clarity, turbidity, objects seen through it), the path tracer can render a physically based water volume: Fresnel reflection, refraction, Beer-Lambert absorption and scattering.
+**Rivers and lakes that are only map features do not need it**: leave it off and use the river mask, as the Poudre film does. See [docs/WATER.md](docs/WATER.md).
+
 ## Music (optional)
 
 Soundtracks are **not part of the package**. I made the Poudre film's score with [Sonic Pi](https://sonic-pi.net) (a free, separate app): I asked an AI assistant to write a script locked to
@@ -74,6 +79,7 @@ which design decisions I already settled (so you do not spend time re-debating t
 | [AGENTS.md](AGENTS.md) | the briefing for AI assistants (start here if you are one) |
 | [docs/BRING_YOUR_OWN_DATA.md](docs/BRING_YOUR_OWN_DATA.md) | synthetic demo vs real data; file formats |
 | [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md) | design, measurements, known gaps |
+| [docs/WATER.md](docs/WATER.md) | 3D water rendering: when to use it (only when water is the subject), options, limits |
 | [docs/MUSIC_WITH_SONIC_PI.md](docs/MUSIC_WITH_SONIC_PI.md) | optional: add a synced soundtrack |
 | [AI_ATTRIBUTION.md](AI_ATTRIBUTION.md) | what the AI did, what I did, what we verified |
 | [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md) | credits |

@@ -5,6 +5,7 @@ export(
   sr_metal_available, sr_device_info, sr_doctor, sr_intake, sr_presets,
   sr_mesh_from_heightfield, sr_upload_mesh, sr_render_light_layers, sr_parity_check,
   sr_project, sr_sample_texture,
+  sr_water_preset, sr_mesh_append, sr_sphere_mesh, sr_paint_albedo,
   sr_still, sr_sheet, sr_compose,
   sr_demo_data, sr_demo
 )

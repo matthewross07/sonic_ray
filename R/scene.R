@@ -43,11 +43,18 @@ sr_mesh_from_heightfield <- function(H, xr, zr, y0 = min(H), vexag = 1) {
 
 #' Upload a mesh + an albedo image to a persistent Metal acceleration structure
 #'
-#' @param mesh output of [sr_mesh_from_heightfield()].
+#' @param mesh output of [sr_mesh_from_heightfield()] (optionally extended with [sr_mesh_append()] for submerged objects).
 #' @param albedo numeric array (h x w x 3) of *linear* albedo in [0, 1]. For rayrender parity pass `png::readPNG(f)^2.2`
 #'   (rayrender decodes 8-bit image textures with a ~2.2 gamma).
+#' @param water optional list that makes a 3D water volume. **Use it only when the water itself is the subject** (clarity, turbidity, submerged objects);
+#'   for rivers and lakes that are just map features keep `water = NULL` and use the albedo and river mask (see `docs/WATER.md`). Fields: `level` (world y of the surface, required), `ior` (1.333),
+#'   `roughness` (capillary-wave tilt, 0), `cutaway` (TRUE: a box bounded by the terrain with glass side walls, FALSE: water everywhere below `level`),
+#'   `absorption` (RGB per unit; or `kd` to use one value for all three), `scattering` (RGB per unit), `metres_per_unit` (scene units to metres, 1:
+#'   coefficients are taken per scene unit; for terrain scenes with 1 unit = 1 km and vertical exaggeration v use `1000 / v` and give coefficients per metre).
+#'   With `water = NULL` (the default) the water code is compiled out and costs nothing.
+#' @return a `sonicray_gpu_scene`.
 #' @export
-sr_upload_mesh <- function(mesh, albedo) {
+sr_upload_mesh <- function(mesh, albedo, water = NULL) {
   shader_path <- system.file("metal", "sonicray_pathtracer.metal", package = "sonicray")
   if (!nzchar(shader_path)) shader_path <- file.path("inst", "metal", "sonicray_pathtracer.metal")
   src <- paste(readLines(shader_path, warn = FALSE), collapse = "\n")
@@ -55,7 +62,7 @@ sr_upload_mesh <- function(mesh, albedo) {
   rgba <- array(1, c(4, tw, th))                                   # channel fastest, then x, then y (row-major image)
   for (k in 1:3) rgba[k, , ] <- t(albedo[, , k])
   xptr <- cpp_upload_scene(mesh$vertices, mesh$normals, mesh$uvs, mesh$indices, as.numeric(rgba), as.integer(tw), as.integer(th),
-                           rep(0, tw * th * 2), src)
-  structure(list(gpu_handle = xptr, n_vertices = nrow(mesh$vertices), n_triangles = nrow(mesh$indices), tex_dims = c(tw, th)),
+                           rep(0, tw * th * 2), src, water_vector(water))
+  structure(list(gpu_handle = xptr, n_vertices = nrow(mesh$vertices), n_triangles = nrow(mesh$indices), tex_dims = c(tw, th), water = water),
             class = "sonicray_gpu_scene")
 }

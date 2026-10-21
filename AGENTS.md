@@ -15,10 +15,11 @@ Do not pick design values silently. Ask these (run `sr_intake()` to print them w
 2. **Purpose and length**: slide, web, large screen? How many seconds?
 3. **Quality**: `draft` (960x540) -> `review` (1280x720) -> `final` (1920x1080). Start at draft.
 4. **Colours**: a colour for each of up to 3 measured parameters, sensor beacons, terrain glow. Colour-blind-safe needed?
-5. **Look**: night only (default) or also sunrise/sky? Stars? On-screen text? (default: **no text**, the presenter narrates)
-6. **Speed vs file size**: Apple hardware encoder (fastest, frees the CPU, files about 3x bigger) or x264 (small files)?
-7. **Audio**: none, or a .wav to mux (with offset)? Music is optional and outside the package: see `docs/MUSIC_WITH_SONIC_PI.md`.
-8. **Output**: folder and a NEW file name (never overwrite an approved film).
+5. **Water**: is the water itself the subject, or are rivers and lakes only map features? (default: map features, **do not enable the water volume**; see `docs/WATER.md`)
+6. **Look**: night only (default) or also sunrise/sky? Stars? On-screen text? (default: **no text**, the presenter narrates)
+7. **Speed vs file size**: Apple hardware encoder (fastest, frees the CPU, files about 3x bigger) or x264 (small files)?
+8. **Audio**: none, or a .wav to mux (with offset)? Music is optional and outside the package: see `docs/MUSIC_WITH_SONIC_PI.md`.
+9. **Output**: folder and a NEW file name (never overwrite an approved film).
 
 Show the user a **quick sheet** (`sr_sheet()`) or a draft before any slow render, and get approval before `final`.
 
@@ -28,6 +29,7 @@ Show the user a **quick sheet** (`sr_sheet()`) or a draft before any slow render
 - Compositing happens on the GPU in one C++ process; the CPU only builds a `FrameSpec` per frame (`src/comp_types.h`). **To change the look of a film, edit or write a story** (`src/comp_stories.cpp`), not the compositor (`src/comp_engine.cpp`).
 - Presets (`sr_presets()`): draft 32 samples per pixel, review 128, final 256. There is no denoiser: raw layers beat denoised ones from about 32 spp up (see `docs/HOW_IT_WORKS.md`).
 - Encoding: Apple hardware HEVC for draft and review (about 40 s for the Poudre film, big files); x264 `slow` crf 13 for final (about 60 s, small files).
+- **Water volume: only when water is the subject.** `sr_upload_mesh(water = ...)` renders physically based water (Fresnel, refraction, Beer-Lambert, scattering) for films about the water itself: clarity, turbidity, submerged objects. For rivers and lakes that are just features on a map (sensor networks, the Poudre film), **leave `water = NULL`**: the albedo texture and the `riv` mask already draw them, and the volume adds 15-35% render time and sun-glitter noise. Ask the user if unsure. Details and limits: `docs/WATER.md`.
 - 8-bit textures decode as value^2.2 (sRGB). Decode position maps with ^(1/2.2).
 - No text is ever drawn into a film. Synthetic data must be labelled synthetic wherever it is shown.
 
@@ -52,8 +54,8 @@ Changing the narrative beyond what the data files control (sun, scans, seasons):
 | `src/`, `inst/metal/sonicray_pathtracer.metal` | Metal ray tracing bridge (Rcpp + Objective-C++) |
 | `src/comp_*.cpp`, `inst/metal/sonicray_comp.metal` | GPU compositor: engine, kernels, sparks, stories, the threaded film pipeline |
 | `R/compose.R` | `sr_compose`, `sr_still`, `sr_sheet`, `sr_doctor`, `sr_intake`, `sr_presets` |
-| `docs/` | data guide, how it works |
-| `tools/` | `make_rd.R` (help pages), `compare_pngs.R` (frame parity), `smoke_test.R` |
+| `docs/` | data guide, how it works, water rendering |
+| `tools/` | `make_rd.R` (help pages), `compare_pngs.R` (frame parity), `smoke_test.R`, `test_water.R` (closed-form water checks), `water_demo.R` |
 
 ## 5. Traps that cost the most time
 - **Layers are baked**: terrain, texture, camera and light positions live inside the layers. Decide them before a final render.

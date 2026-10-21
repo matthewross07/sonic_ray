@@ -76,7 +76,8 @@ SEXP cpp_upload_scene(
     int           tex_w,
     int           tex_h,
     NumericVector river_rg,    // W_tex * H_tex * 2 (linear float [0,1])
-    std::string   metal_shader_src
+    std::string   metal_shader_src,
+    NumericVector water = NumericVector::create()   // empty = no water; else (level, ior, roughness, cutaway, sigma_t[3], sigma_s[3]) per scene unit
 ) {
     id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
     if (!dev || ![dev supportsRaytracing]) {
@@ -96,8 +97,13 @@ SEXP cpp_upload_scene(
         stop("Failed to compile sonicray Metal shader at runtime:\n" + msg);
     }
 
-    id<MTLFunction> fn_amb = [lib newFunctionWithName:@"render_ambient_and_aovs_kernel"];
-    id<MTLFunction> fn_ml  = [lib newFunctionWithName:@"render_multilight_batch_kernel"];
+    // Water code is compiled in only when the scene has water (a Metal function constant), so dry scenes pay nothing for it.
+    const bool has_water = water.size() >= 10;
+    MTLFunctionConstantValues* fc = [[MTLFunctionConstantValues alloc] init];
+    [fc setConstantValue:&has_water type:MTLDataTypeBool atIndex:0];
+    id<MTLFunction> fn_amb = [lib newFunctionWithName:@"render_ambient_and_aovs_kernel" constantValues:fc error:&err];
+    id<MTLFunction> fn_ml  = [lib newFunctionWithName:@"render_multilight_batch_kernel" constantValues:fc error:&err];
+    if (!fn_amb || !fn_ml) stop(std::string("Failed to specialise the Metal kernels: ") + (err ? [[err localizedDescription] UTF8String] : "unknown"));
     id<MTLComputePipelineState> p_amb = [dev newComputePipelineStateWithFunction:fn_amb error:&err];
     id<MTLComputePipelineState> p_ml  = [dev newComputePipelineStateWithFunction:fn_ml error:&err];
     if (!p_amb || !p_ml) {
@@ -154,6 +160,18 @@ SEXP cpp_upload_scene(
         dev, queue, lib, p_amb, p_ml, bvh,
         v_buf, n_buf, uv_buf, idx_buf, alb_tex, riv_tex, nv, nt
     };
+    sc->has_water = has_water;
+    if (has_water) {
+        HostWaterUniforms& w = sc->water;
+        w.level = (float)water[0]; w.ior = (float)water[1]; w.roughness = (float)water[2]; w.cutaway = water[3] != 0.0 ? 1u : 0u;
+        for (int i = 0; i < 3; ++i) { w.sigma_t[i] = (float)water[4 + i]; w.sigma_s[i] = (float)water[7 + i]; }
+        float lo[3] = {1e30f, 1e30f, 1e30f}, hi[3] = {-1e30f, -1e30f, -1e30f};       // terrain bounds (used by the cutaway box)
+        for (uint32_t i = 0; i < nv; ++i) {
+            float c[3] = {v_vec[i].x, v_vec[i].y, v_vec[i].z};
+            for (int k = 0; k < 3; ++k) { lo[k] = std::min(lo[k], c[k]); hi[k] = std::max(hi[k], c[k]); }
+        }
+        for (int k = 0; k < 3; ++k) { w.bmin[k] = lo[k] - (k == 1 ? 1e-3f : 0.0f); w.bmax[k] = hi[k]; }
+    }
     return XPtr<SonicrayScene>(sc, true);
 }
 
@@ -236,6 +254,7 @@ List cpp_render_ambient_and_aovs(
     id<MTLBuffer> b_nrm  = [sc->device newBufferWithLength:npix * sizeof(PackedFloat3) options:MTLResourceStorageModeShared];
     id<MTLBuffer> b_uv   = [sc->device newBufferWithLength:npix * sizeof(PackedFloat2) options:MTLResourceStorageModeShared];
     id<MTLBuffer> b_riv  = [sc->device newBufferWithLength:npix * sizeof(PackedFloat2) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> b_wdep = [sc->device newBufferWithLength:npix * sizeof(float)        options:MTLResourceStorageModeShared];
 
     id<MTLCommandBuffer> cmd = [sc->queue commandBuffer];
     id<MTLComputeCommandEncoder> enc = [cmd computeCommandEncoder];
@@ -252,6 +271,8 @@ List cpp_render_ambient_and_aovs(
     [enc setBuffer:b_nrm          offset:0 atIndex:9];
     [enc setBuffer:b_uv           offset:0 atIndex:10];
     [enc setBuffer:b_riv          offset:0 atIndex:11];
+    [enc setBytes:&sc->water length:sizeof(HostWaterUniforms) atIndex:12];
+    [enc setBuffer:b_wdep         offset:0 atIndex:13];
     [enc setTexture:sc->albedo_tex atIndex:0];
     [enc setTexture:sc->river_tex  atIndex:1];
 
@@ -268,6 +289,7 @@ List cpp_render_ambient_and_aovs(
     const float* p_nrm  = (const float*)[b_nrm contents];
     const float* p_uv   = (const float*)[b_uv contents];
     const float* p_riv  = (const float*)[b_riv contents];
+    const float* p_wdep = (const float*)[b_wdep contents];
 
     return List::create(
         _["amb"]    = NumericVector(p_amb,  p_amb  + npix * 3),
@@ -275,7 +297,8 @@ List cpp_render_ambient_and_aovs(
         _["albedo"] = NumericVector(p_alb,  p_alb  + npix * 3),
         _["normal"] = NumericVector(p_nrm,  p_nrm  + npix * 3),
         _["uv"]     = NumericVector(p_uv,   p_uv   + npix * 2),
-        _["riv"]    = NumericVector(p_riv,  p_riv  + npix * 2)
+        _["riv"]    = NumericVector(p_riv,  p_riv  + npix * 2),
+        _["water_depth"] = NumericVector(p_wdep, p_wdep + npix)
     );
 }
 
@@ -328,6 +351,7 @@ NumericVector cpp_render_multilight_batch(
     [enc setBuffer:sc->index_buf  offset:0 atIndex:5];
     [enc setBuffer:b_lights       offset:0 atIndex:6];
     [enc setBuffer:b_out          offset:0 atIndex:7];
+    [enc setBytes:&sc->water length:sizeof(HostWaterUniforms) atIndex:8];
     [enc setTexture:sc->albedo_tex atIndex:0];
 
     MTLSize grid = MTLSizeMake(width, height, 1);

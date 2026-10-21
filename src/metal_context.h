@@ -53,6 +53,19 @@ struct HostLightSpec {
     uint32_t     light_type;
 };
 
+// Matches MSL WaterUniforms (16 floats). Coefficients are per scene unit.
+struct HostWaterUniforms {
+    float    level;
+    float    ior;
+    float    roughness;
+    uint32_t cutaway;
+    float    sigma_t[3];
+    float    sigma_s[3];
+    float    bmin[3];
+    float    bmax[3];
+};
+static_assert(sizeof(HostWaterUniforms) == 64, "HostWaterUniforms must match the Metal struct");
+
 #ifdef __OBJC__
 // Persistent GPU Scene held in an Rcpp::XPtr<SonicrayScene> across all layer renders
 struct SonicrayScene {
@@ -70,5 +83,7 @@ struct SonicrayScene {
     id<MTLTexture>                river_tex;
     uint32_t                      num_vertices;
     uint32_t                      num_triangles;
+    bool                          has_water = false;
+    HostWaterUniforms             water{};
 };
 #endif

@@ -106,8 +106,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpp_upload_scene
-SEXP cpp_upload_scene(NumericMatrix vertices, NumericMatrix normals, NumericMatrix uvs, IntegerMatrix indices, NumericVector albedo_rgba, int tex_w, int tex_h, NumericVector river_rg, std::string metal_shader_src);
-RcppExport SEXP _sonicray_cpp_upload_scene(SEXP verticesSEXP, SEXP normalsSEXP, SEXP uvsSEXP, SEXP indicesSEXP, SEXP albedo_rgbaSEXP, SEXP tex_wSEXP, SEXP tex_hSEXP, SEXP river_rgSEXP, SEXP metal_shader_srcSEXP) {
+SEXP cpp_upload_scene(NumericMatrix vertices, NumericMatrix normals, NumericMatrix uvs, IntegerMatrix indices, NumericVector albedo_rgba, int tex_w, int tex_h, NumericVector river_rg, std::string metal_shader_src, NumericVector water);
+RcppExport SEXP _sonicray_cpp_upload_scene(SEXP verticesSEXP, SEXP normalsSEXP, SEXP uvsSEXP, SEXP indicesSEXP, SEXP albedo_rgbaSEXP, SEXP tex_wSEXP, SEXP tex_hSEXP, SEXP river_rgSEXP, SEXP metal_shader_srcSEXP, SEXP waterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -120,7 +120,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type tex_h(tex_hSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type river_rg(river_rgSEXP);
     Rcpp::traits::input_parameter< std::string >::type metal_shader_src(metal_shader_srcSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_upload_scene(vertices, normals, uvs, indices, albedo_rgba, tex_w, tex_h, river_rg, metal_shader_src));
+    Rcpp::traits::input_parameter< NumericVector >::type water(waterSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_upload_scene(vertices, normals, uvs, indices, albedo_rgba, tex_w, tex_h, river_rg, metal_shader_src, water));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -170,7 +171,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_sonicray_cpp_comp_describe", (DL_FUNC) &_sonicray_cpp_comp_describe, 7},
     {"_sonicray_cpp_vertex_normals", (DL_FUNC) &_sonicray_cpp_vertex_normals, 2},
     {"_sonicray_cpp_metal_device_info", (DL_FUNC) &_sonicray_cpp_metal_device_info, 0},
-    {"_sonicray_cpp_upload_scene", (DL_FUNC) &_sonicray_cpp_upload_scene, 9},
+    {"_sonicray_cpp_upload_scene", (DL_FUNC) &_sonicray_cpp_upload_scene, 10},
     {"_sonicray_cpp_render_ambient_and_aovs", (DL_FUNC) &_sonicray_cpp_render_ambient_and_aovs, 8},
     {"_sonicray_cpp_render_multilight_batch", (DL_FUNC) &_sonicray_cpp_render_multilight_batch, 10},
     {NULL, NULL, 0}

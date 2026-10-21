@@ -25,8 +25,8 @@ cpp_metal_device_info <- function() {
     .Call(`_sonicray_cpp_metal_device_info`)
 }
 
-cpp_upload_scene <- function(vertices, normals, uvs, indices, albedo_rgba, tex_w, tex_h, river_rg, metal_shader_src) {
-    .Call(`_sonicray_cpp_upload_scene`, vertices, normals, uvs, indices, albedo_rgba, tex_w, tex_h, river_rg, metal_shader_src)
+cpp_upload_scene <- function(vertices, normals, uvs, indices, albedo_rgba, tex_w, tex_h, river_rg, metal_shader_src, water = as.numeric( c())) {
+    .Call(`_sonicray_cpp_upload_scene`, vertices, normals, uvs, indices, albedo_rgba, tex_w, tex_h, river_rg, metal_shader_src, water)
 }
 
 cpp_render_ambient_and_aovs <- function(scene_xptr, lookfrom, lookat, fov_deg, width, height, samples, clamp_val) {

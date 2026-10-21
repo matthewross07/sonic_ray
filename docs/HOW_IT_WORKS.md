@@ -43,7 +43,7 @@ Layers vs rayrender: ambient and sun within a few percent; near sphere lights me
 - **One process.** Moving from several worker processes to threads cut system CPU time from about 78 s to 26 s per film (per-process page faults and 24 GB of frames through pipes).
 
 ## Known gaps
-- Sphere lights only; one GPU; up to 3 spark parameters; no volumetrics or glossy materials.
+- Sphere lights only; one GPU; up to 3 spark parameters; no glossy materials. Water is a flat dielectric volume with absorption and single scattering (`docs/WATER.md`, only for films where water is the subject).
 - Treat rayrender as the reference: our path tracer differs from it along shadow edges and in indirect fill; bounces add only 1-2% on the Poudre terrain.
 - Layers still pass through disk (`.f32` files). Keeping them in GPU memory from the path tracer into the compositor, and overlapping rendering with compositing, would save a few seconds; I have not built it.
 - Custom stories are C++ today (copy `NetworkStory` in `src/comp_stories.cpp`). An R-function story interface is not built.

@@ -52,6 +52,7 @@ sr_render_light_layers <- function(
   if (!is.null(out_dir)) {
     writeBin(as.numeric(aov_res$amb),  file.path(out_dir, "amb.f32"),  size = 4)
     writeBin(as.numeric(aov_res$mask), file.path(out_dir, "mask.f32"), size = 4)
+    if (any(aov_res$water_depth > 0)) writeBin(as.numeric(aov_res$water_depth), file.path(out_dir, "water_depth.f32"), size = 4)   # path length inside the water to the terrain
   }
 
   # Pass 2: Batched Multi-Light NEE Path Tracing (up to 32 lights per pass, zero RGB cross-talk)
