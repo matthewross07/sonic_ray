@@ -21,5 +21,5 @@ Ask the assistant to **print the times it used**. If the film and the music drif
 
 ## Should this become part of the package?
 
-I suggest not yet, and not in the core: Sonic Pi is a separate app with its own recording step. I would add a small optional piece later: a `sonicray timeline --json` command that
+I suggest not yet, and not in the core: Sonic Pi is a separate app with its own recording step. I would add a small optional piece later: an R function (for example `sr_timeline()`) that
 exports the film's beats, and a checker that listens for the first note and measures the offset. I have not built either. Until then, the recipe above is enough.

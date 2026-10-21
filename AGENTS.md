@@ -16,7 +16,7 @@ Do not pick design values silently. Ask these (run `sr_intake()` to print them w
 3. **Quality**: `draft` (960x540) -> `review` (1280x720) -> `final` (1920x1080). Start at draft.
 4. **Colours**: a colour for each of up to 3 measured parameters, sensor beacons, terrain glow. Colour-blind-safe needed?
 5. **Look**: night only (default) or also sunrise/sky? Stars? On-screen text? (default: **no text**, the presenter narrates)
-6. **Speed vs quality**: fast encode (x264 `fast`, ~2x quicker, ~0.3 dB lower) or slow (final)?
+6. **Speed vs file size**: Apple hardware encoder (fastest, frees the CPU, files about 3x bigger) or x264 (small files)?
 7. **Audio**: none, or a .wav to mux (with offset)? Music is optional and outside the package: see `docs/MUSIC_WITH_SONIC_PI.md`.
 8. **Output**: folder and a NEW file name (never overwrite an approved film).
 
@@ -34,7 +34,7 @@ Show the user a **quick sheet** (`sr_sheet()`) or a draft before any slow render
 ## 3. Workflow
 ```r
 library(sonicray); sr_doctor()                 # fix anything it prints, then continue
-sr_demo("out", "draft")                        # synthetic end-to-end check (about a minute)
+sr_demo("out", "draft")                        # synthetic end-to-end check (a few seconds)
 ```
 ```r
 sr_sheet("LAYERS", "sheet.png", story = "network")                        # look at this first
@@ -42,7 +42,8 @@ sr_compose("LAYERS", "NEW.mp4", story = "network", quality = "draft")
 sr_compose("LAYERS", "NEW_final.mp4", story = "network", quality = "final", audio = "score.wav", audio_offset = 0.64)
 ```
 Changing colours, timing, sensor on-times, event data or length: edit `story.json` / `sensors.csv` / `events.csv` and **re-compose only** (seconds).
-Changing terrain, camera, lights or resolution: **re-render layers** (minutes at most).
+Changing terrain, camera, lights or resolution: **re-render layers** (about 25 s for the Poudre film). `R/demo.R` is the complete recipe for your own scene: mesh, GPU upload, one light per beacon and per site and parameter, `riv` and `stars` layers, and the story files.
+Changing the narrative beyond what the data files control (sun, scans, seasons): copy `NetworkStory` or `PoudreStory` in `src/comp_stories.cpp`, register it in `make_story()` and reinstall. Stories are C++ today; an R-function story interface is not built.
 
 ## 4. Where things are
 | | |
@@ -57,8 +58,11 @@ Changing terrain, camera, lights or resolution: **re-render layers** (minutes at
 ## 5. Traps that cost the most time
 - **Layers are baked**: terrain, texture, camera and light positions live inside the layers. Decide them before a final render.
 - A killed render can leave a truncated `.f32` that looks done. Delete it if in doubt.
-- Spark rasterisation is not bit-identical to the CPU reference (about 3% of pixels differ at spark edges; total light within 0.6%). Sky matches to 1/255.
-- A tiny number of very bright pixels is normal (firefly clamp is 50).
+- Spark rasterisation is not bit-identical to the original CPU compositor, which is not in this repository (about 3% of pixels differ at spark edges; total light within 0.6%). Sky matches to 1/255.
+- A tiny number of very bright pixels is normal (the firefly clamp is 50).
+- More worker threads rarely help: x264 saturates the CPU, and the hardware encoder is GPU-bound. The default (3) is fine; each thread holds about 0.5 GB of GPU buffers.
+- Hardware-encoded files are about 3x bigger than x264 files; use x264 for the version you share or archive.
+- Do not look for a denoiser option: there is none (see section 2).
 - Report what was measured vs estimated; say plainly what you did not verify.
 - Do not push, publish or overwrite existing outputs without the user's explicit approval.
 

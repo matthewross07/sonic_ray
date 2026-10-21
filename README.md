@@ -10,7 +10,7 @@ Render each light once on the GPU, then re-time, re-colour and re-cut the film i
 >
 > **I built this with AI.** I directed Anthropic's Claude Sonnet 5.5 (in Claude Code, effort high), and Claude wrote most of the code and docs. See [AI_ATTRIBUTION.md](AI_ATTRIBUTION.md).
 
-## Install (Apple Silicon Mac, macOS 14+)
+## Install (Apple Silicon Mac, macOS 14+, R 4.3 or newer)
 
 ```bash
 xcode-select --install                      # compiler (skip if already installed)
@@ -27,7 +27,7 @@ Or run `./install.sh` from a clone, which does all of the above and then `sr_doc
 ```r
 library(sonicray)
 sr_doctor()                    # checks the Mac and prints the exact fix for anything missing
-sr_demo("my_demo")             # SYNTHETIC data -> GPU light layers -> GPU compositor -> my_demo/demo_draft.mp4 (about 3 s)
+sr_demo("my_demo")             # SYNTHETIC data -> GPU light layers -> GPU compositor -> my_demo/demo_draft.mp4 (about 3 s; open it)
 ```
 **The demo data are synthetic.** I invented the river valley, the sensors and the "samples". They show the pipeline and file formats, not real measurements.
 To use real sensors and a real elevation model, see [docs/BRING_YOUR_OWN_DATA.md](docs/BRING_YOUR_OWN_DATA.md).

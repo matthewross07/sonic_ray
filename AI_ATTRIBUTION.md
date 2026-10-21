@@ -10,8 +10,7 @@
 | Period | October 2026 |
 | Git | Commits that Claude wrote carry a `Co-Authored-By: Claude Sonnet 5.5` trailer |
 
-**What we verified, and how.** Everything this repository calls "measured" ran on one machine (Apple M4 Pro, macOS 15.7) during development. Claude timed the 162 layer renders and the full film composites,
-compared GPU frames with the CPU compositor using `tools/compare_reference.py`, and tested the install into a fresh R library.
+**What we verified, and how.** Everything this repository calls "measured" ran on one machine (Apple M4 Pro, macOS 15.7) during development. Claude timed the 146 light-layer renders and the full film composites, compared the GPU compositor's frames with the original CPU compositor and with my earlier Python implementation (both outside this repository; `tools/compare_pngs.R` does the same kind of comparison on two folders of stills), and tested the install from GitHub into a fresh R library.
 **What we did not verify.** Other Macs, other macOS versions, and the long-term behaviour of the Metal driver.
 Where a number is an estimate, the text says so. Please report problems as issues.
 
